@@ -1,0 +1,258 @@
+@page "/pluginz"
+
+<PageTitle>Plugins</PageTitle>
+
+<PageHeader Title="Plugins" Icon="collection" Description="Install, enable and configure the plugins this site loads. A change takes effect after a restart.">
+    <Actions>
+        @if (canManage)
+        {
+            @if (Packages is not null)
+            {
+                <a class="nf-button nf-button-primary" href="@PluginzRoutes.Browse">Browse NuGet</a>
+            }
+            @if (Options.Value.AllowUpload)
+            {
+                <button type="button" class="nf-button" @onclick="ToggleUpload">Add from file</button>
+            }
+            <button type="button" class="nf-button" @onclick="RescanAsync" disabled="@busy">Rescan</button>
+        }
+    </Actions>
+</PageHeader>
+
+@if (loading)
+{
+    <p class="nf-muted">Loading.</p>
+}
+else if (denied)
+{
+    <EmptyState Icon="alert" Title="You can't see plugins" Description="Sign in with a role that is allowed to view them." />
+}
+else
+{
+    @if (restartRequired)
+    {
+        <div class="pz-banner" role="status">
+            <span><strong>Restart needed.</strong> Plugins load when the site starts, so your changes apply after a restart.</span>
+            @if (canManage && Options.Value.AllowRestart)
+            {
+                <button type="button" class="nf-button nf-button-primary" @onclick="RestartAsync">Restart now</button>
+            }
+        </div>
+    }
+
+    @if (showUpload && canManage)
+    {
+        <div class="nf-field">
+            <label for="plugin-file">Add a plugin from a file</label>
+            <InputFile id="plugin-file" class="nf-input" OnChange="UploadAsync" accept=".zip,.nupkg" disabled="@busy" @key="uploadKey" />
+            <span class="nf-hint">A .zip of a plugin folder, or a NuGet .nupkg. The plugin is added but not installed. Plugins are code that runs inside this site, so add only ones you trust.</span>
+        </div>
+    }
+
+    <div class="pz-toolbar">
+        <SearchField Value="@search" ValueChanged="OnSearchChanged" Placeholder="Search plugins" />
+        <div class="nf-chip-row">
+            <Chip Selected="@(filter == PluginFilter.All)" OnClick="() => SetFilter(PluginFilter.All)">All (@plugins.Count)</Chip>
+            <Chip Selected="@(filter == PluginFilter.Active)" OnClick="() => SetFilter(PluginFilter.Active)">Active (@Count(PluginFilter.Active))</Chip>
+            <Chip Selected="@(filter == PluginFilter.Available)" OnClick="() => SetFilter(PluginFilter.Available)">Not installed (@Count(PluginFilter.Available))</Chip>
+            <Chip Selected="@(filter == PluginFilter.Problems)" OnClick="() => SetFilter(PluginFilter.Problems)">Problems (@Count(PluginFilter.Problems))</Chip>
+        </div>
+    </div>
+
+    @if (loadError is not null)
+    {
+        <EmptyState Icon="alert" Title="The plugins could not be read" Description="@loadError" />
+    }
+    else if (plugins.Count == 0)
+    {
+        <EmptyState Icon="collection" Title="No plugins yet">
+            <p>Copy a plugin folder into the plugins folder, add one from a file, or browse NuGet.</p>
+        </EmptyState>
+    }
+    else if (visible.Count == 0)
+    {
+        <EmptyState Icon="search" Title="Nothing matches" Description="Try another search or filter." />
+    }
+    else
+    {
+        <Table>
+            <thead>
+                <tr>
+                    <th>Plugin</th>
+                    <th>Version</th>
+                    <th>Group</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var plugin in visible)
+                {
+                    <tr>
+                        <td>
+                            <div class="pz-plugin">
+                                <span class="pz-plugin-icon">
+                                    @if (HasImage(plugin))
+                                    {
+                                        <img src="@plugin.IconUrl" alt="" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <Icon Name="collection" Size="18" />
+                                    }
+                                </span>
+                                <div>
+                                    <div class="pz-plugin-name">@plugin.FriendlyName</div>
+                                    @if (!string.IsNullOrWhiteSpace(plugin.Description))
+                                    {
+                                        <div class="pz-plugin-description nf-truncate">@plugin.Description</div>
+                                    }
+                                    <div class="nf-mono nf-small nf-muted">@plugin.SystemName</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="nf-mono">
+                            @plugin.Version
+                            @if (plugin.PendingVersion is not null)
+                            {
+                                <div class="nf-small nf-muted">next: @plugin.PendingVersion</div>
+                            }
+                            else if (plugin.LoadedVersion is not null)
+                            {
+                                <div class="nf-small nf-muted">running: @plugin.LoadedVersion</div>
+                            }
+                        </td>
+                        <td>@(plugin.Group ?? "—")</td>
+                        <td>@SourceText(plugin)</td>
+                        <td><span class="nf-badge @StatusClass(plugin)">@StatusText(plugin)</span></td>
+                        <td>
+                            <div class="pz-actions">
+                                @if (plugin.IsActive && plugin.ConfigurationUrl is not null && plugin.Status == PluginStatus.Active)
+                                {
+                                    <a class="nf-button" href="@plugin.ConfigurationUrl">Configure</a>
+                                }
+                                @if (canManage)
+                                {
+                                    @if (!plugin.IsInstalled)
+                                    {
+                                        @if (plugin.Status != PluginStatus.Incompatible)
+                                        {
+                                            <button type="button" class="nf-button nf-button-primary" @onclick="() => InstallAsync(plugin)" disabled="@busy">Install</button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @if (plugin.IsEnabled)
+                                        {
+                                            <button type="button" class="nf-button" @onclick="() => DisableAsync(plugin)" disabled="@busy">Disable</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="nf-button" @onclick="() => EnableAsync(plugin)" disabled="@busy">Enable</button>
+                                        }
+                                        <button type="button" class="nf-button" @onclick="() => UninstallAsync(plugin)" disabled="@busy">Uninstall</button>
+                                    }
+                                    @if (!plugin.IsInstalled)
+                                    {
+                                        <button type="button" class="nf-button nf-button-danger" @onclick="() => DeleteAsync(plugin)" disabled="@busy">Delete</button>
+                                    }
+                                }
+                                <button type="button" class="nf-button" @onclick="() => Select(plugin)">Details</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </Table>
+    }
+}
+
+@if (selected is not null)
+{
+    <Drawer Title="@selected.FriendlyName" Open="true" Scrim="true" OnClose="CloseDetails" Width="32rem">
+        <Actions>
+            @if (canManage)
+            {
+                <button type="submit" form="plugin-form" class="nf-button nf-button-primary" disabled="@busy">Save</button>
+            }
+        </Actions>
+        <ChildContent>
+            @if (selected.Problems.Count > 0)
+            {
+                <ul class="pz-problems">
+                    @foreach (var problem in selected.Problems)
+                    {
+                        <li>@problem</li>
+                    }
+                </ul>
+            }
+
+            <dl class="nf-facts">
+                <dt>System name</dt>
+                <dd class="nf-mono">@selected.SystemName</dd>
+                <dt>Version</dt>
+                <dd class="nf-mono">@selected.Version</dd>
+                <dt>Status</dt>
+                <dd><span class="nf-badge @StatusClass(selected)">@StatusText(selected)</span></dd>
+                @if (!string.IsNullOrWhiteSpace(selected.Author))
+                {
+                    <dt>Author</dt>
+                    <dd>@selected.Author</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(selected.Group))
+                {
+                    <dt>Group</dt>
+                    <dd>@selected.Group</dd>
+                }
+                <dt>Source</dt>
+                <dd>@SourceText(selected)</dd>
+                @if (!string.IsNullOrWhiteSpace(selected.License))
+                {
+                    <dt>License</dt>
+                    <dd>@selected.License</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(selected.ProjectUrl))
+                {
+                    <dt>Project</dt>
+                    <dd><a href="@selected.ProjectUrl" target="_blank" rel="noopener noreferrer">@selected.ProjectUrl</a></dd>
+                }
+                <dt>Assembly</dt>
+                <dd class="nf-mono">@selected.AssemblyFileName</dd>
+                <dt>Folder</dt>
+                <dd class="nf-mono nf-small pz-path">@selected.DirectoryPath</dd>
+                @if (selected.Dependencies.Count > 0)
+                {
+                    <dt>Needs</dt>
+                    <dd>@string.Join(", ", selected.Dependencies.Select(d => d.Version is null ? d.SystemName : $"{d.SystemName} {d.Version}"))</dd>
+                }
+            </dl>
+
+            @if (!string.IsNullOrWhiteSpace(selected.Description))
+            {
+                <p>@selected.Description</p>
+            }
+
+            @if (canManage)
+            {
+                <EditForm id="plugin-form" Model="form" OnValidSubmit="SaveAsync">
+                    <Field Label="Name" For="plugin-name">
+                        <InputText id="plugin-name" class="nf-input" @bind-Value="form.FriendlyName" />
+                    </Field>
+                    <Field Label="Order" For="plugin-order">
+                        <InputNumber id="plugin-order" class="nf-input" @bind-Value="displayOrder" />
+                        <span class="nf-hint">Plugins load in this order, after the plugins they depend on.</span>
+                    </Field>
+                    <Field Label="Tenants" For="plugin-tenants">
+                        <InputText id="plugin-tenants" class="nf-input" @bind-Value="tenantsText" placeholder="Every tenant" />
+                        <span class="nf-hint">Comma separated. Leave empty to make the plugin available to every tenant.</span>
+                    </Field>
+                    <Field Label="Roles" For="plugin-roles">
+                        <InputText id="plugin-roles" class="nf-input" @bind-Value="rolesText" placeholder="Every role" />
+                        <span class="nf-hint">Comma separated. Leave empty to make the plugin available to every role.</span>
+                    </Field>
+                </EditForm>
+            }
+        </ChildContent>
+    </Drawer>
+}

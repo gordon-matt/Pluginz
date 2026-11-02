@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Description>The contract that the sample plugins implement and the sample hosts consume.</Description>
+	</PropertyGroup>
+
+</Project>

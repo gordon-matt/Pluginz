@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<IsPackable>false</IsPackable>
+		<RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
+
+		<!-- Plugins, their data and the local feed are runtime content, not source. -->
+		<DefaultItemExcludes>$(DefaultItemExcludes);Plugins\**;App_Data\**;feed\**</DefaultItemExcludes>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Heroicsoft.NetForge.Abstractions" Version="1.2.0" />
+		<PackageReference Include="Heroicsoft.NetForge.Components" Version="1.2.0" />
+		<ProjectReference Include="..\Pluginz.Components\Pluginz.Components.csproj" />
+		<ProjectReference Include="..\Pluginz.NuGet\Pluginz.NuGet.csproj" />
+		<ProjectReference Include="..\Pluginz.Web\Pluginz.Web.csproj" />
+		<ProjectReference Include="..\samples\Pluginz.Samples.Contracts\Pluginz.Samples.Contracts.csproj" />
+	</ItemGroup>
+
+	<!--
+		Builds the sample plugins and copies them into Plugins/, ready to be installed from the admin page. They are built
+		with the MSBuild task rather than a ProjectReference so that the web sample's static assets are not linked into
+		this app: a plugin's files must only be served once the plugin is installed.
+	-->
+	<Target Name="DeploySamplePlugins" AfterTargets="Build" Condition="'$(DeploySamplePlugins)' != 'false'">
+		<ItemGroup>
+			<_SamplePlugin Include="Pluginz.Samples.Hello" />
+			<_SamplePlugin Include="Pluginz.Samples.Web" />
+		</ItemGroup>
+
+		<MSBuild Projects="..\samples\%(_SamplePlugin.Identity)\%(_SamplePlugin.Identity).csproj" Targets="Build" Properties="Configuration=$(Configuration)" />
+
+		<ItemGroup>
+			<_SampleFile Include="..\samples\%(_SamplePlugin.Identity)\bin\$(Configuration)\$(TargetFramework)\**" Exclude="..\samples\%(_SamplePlugin.Identity)\bin\$(Configuration)\$(TargetFramework)\**\*.staticwebassets.*json;..\samples\%(_SamplePlugin.Identity)\bin\$(Configuration)\$(TargetFramework)\**\*.runtimeconfig.json" PluginName="%(_SamplePlugin.Identity)" />
+		</ItemGroup>
+
+		<Copy SourceFiles="@(_SampleFile)" DestinationFiles="@(_SampleFile->'$(MSBuildProjectDirectory)\Plugins\%(PluginName)\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+	</Target>
+
+</Project>

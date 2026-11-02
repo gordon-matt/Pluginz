@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<PackageTags>pluginz;sample</PackageTags>
+		<Title>Hello</Title>
+		<Description>Says hello. The smallest useful plugin, and a check that a plugin can use its own version of a library.</Description>
+		<Version>1.0.0</Version>
+		<IsPluginzPlugin>true</IsPluginzPlugin>
+		<PluginzSystemName>Pluginz.Samples.Hello</PluginzSystemName>
+		<PluginzGroup>Samples</PluginzGroup>
+		<!-- This plugin needs Newtonsoft.Json 12 even when the host ships another version. -->
+		<PluginzPrivateAssemblies>Newtonsoft.Json</PluginzPrivateAssemblies>
+		<!-- The old version is the point of the sample. -->
+		<NoWarn>$(NoWarn);NU1903</NoWarn>
+	</PropertyGroup>
+
+	<Import Project="..\..\Pluginz.Core\build\Pluginz.Core.props" />
+
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- The host provides these. The plugin must not carry its own copy, or the types would not match. -->
+		<ProjectReference Include="..\..\Pluginz.Core\Pluginz.Core.csproj">
+			<Private>false</Private>
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\Pluginz.Samples.Contracts\Pluginz.Samples.Contracts.csproj">
+			<Private>false</Private>
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</ProjectReference>
+	</ItemGroup>
+
+	<Import Project="..\..\Pluginz.Core\build\Pluginz.Core.targets" />
+
+</Project>

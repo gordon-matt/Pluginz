@@ -1,0 +1,68 @@
+namespace Pluginz;
+
+/// <summary>What a plugin knows about itself and the host while it configures services.</summary>
+public class PluginContext
+{
+    public PluginContext(
+        PluginInfo plugin,
+        IConfiguration configuration,
+        string contentRootPath,
+        string environmentName,
+        string dataRoot)
+    {
+        Plugin = plugin;
+        Configuration = configuration;
+        ContentRootPath = contentRootPath;
+        EnvironmentName = environmentName;
+        DataRoot = dataRoot;
+    }
+
+    internal string DataRoot { get; }
+
+    /// <summary>A snapshot of this plugin's manifest and state when the context was created.</summary>
+    public PluginInfo Plugin { get; }
+
+    public string SystemName => Plugin.SystemName;
+
+    /// <summary>The host configuration.</summary>
+    public IConfiguration Configuration { get; }
+
+    /// <summary>The host configuration section <c>Plugins:{SystemName}</c>. Use it for the plugin's own settings.</summary>
+    public IConfigurationSection Section => Configuration.GetSection($"Plugins:{SystemName}");
+
+    public string ContentRootPath { get; }
+
+    public string EnvironmentName { get; }
+
+    public bool IsDevelopment => string.Equals(EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>The folder the plugin was discovered in. Treat it as read-only.</summary>
+    public string DirectoryPath => Plugin.DirectoryPath;
+
+    /// <summary>
+    /// A writable folder that belongs to this plugin and survives updates and uninstalls. It is created the first
+    /// time you read this property.
+    /// </summary>
+    public string DataPath
+    {
+        get
+        {
+            var path = Path.Combine(DataRoot, "data", SystemName);
+            Directory.CreateDirectory(path);
+            return path;
+        }
+    }
+}
+
+/// <summary>A <see cref="PluginContext"/> that also exposes the host's built service provider.</summary>
+public sealed class PluginRuntimeContext : PluginContext
+{
+    public PluginRuntimeContext(PluginContext context, IServiceProvider services)
+        : base(context.Plugin, context.Configuration, context.ContentRootPath, context.EnvironmentName, context.DataRoot)
+    {
+        Services = services;
+    }
+
+    /// <summary>The host's service provider. Create a scope before resolving scoped services.</summary>
+    public IServiceProvider Services { get; }
+}

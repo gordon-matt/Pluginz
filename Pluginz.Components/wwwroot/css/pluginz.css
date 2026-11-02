@@ -1,0 +1,120 @@
+/*
+ * These pages render inside the host document. A host stylesheet loaded after nf.css
+ * (Bootstrap, Radzen) paints the document body and native inputs, and the shell is
+ * transparent, so the dark theme shows light text on a light page. While this layout
+ * is on screen, paint the shell with the NetForge tokens that LogVue and IdentityNexus use.
+ */
+
+html[data-theme] .nf-shell {
+    background: var(--nf-bg);
+    color: var(--nf-text);
+    color-scheme: light;
+}
+
+html[data-theme="dark"] .nf-shell {
+    color-scheme: dark;
+}
+
+html[data-theme] .nf-input,
+html[data-theme] .nf-textarea,
+html[data-theme] .nf-select {
+    color: var(--nf-text);
+    background-color: var(--nf-surface);
+    border-color: var(--nf-border);
+}
+
+html[data-theme] .nf-input::placeholder,
+html[data-theme] .nf-textarea::placeholder {
+    color: var(--nf-muted);
+    opacity: 1;
+}
+
+html[data-theme] .nf-input::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.35rem 0.7rem;
+    color: var(--nf-text);
+    background: var(--nf-surface-2);
+    border: 1px solid var(--nf-border);
+    border-radius: var(--nf-radius-small);
+}
+
+/* Pluginz pages */
+
+.pz-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+    padding: 0.65rem 0.9rem;
+    color: var(--nf-text);
+    background: var(--nf-warning-soft);
+    border: 1px solid var(--nf-warning);
+    border-radius: var(--nf-radius);
+}
+
+.pz-plugin {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 14rem;
+}
+
+.pz-plugin-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    color: var(--nf-muted);
+    background: var(--nf-surface-2);
+    border-radius: var(--nf-radius-small);
+}
+
+.pz-plugin-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: var(--nf-radius-small);
+}
+
+.pz-plugin-name {
+    font-weight: 600;
+}
+
+.pz-path {
+    overflow-wrap: anywhere;
+}
+
+.pz-plugin-description {
+    max-width: 34rem;
+    color: var(--nf-muted);
+    font-size: 12.5px;
+}
+
+.pz-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.3rem;
+}
+
+.pz-problems {
+    margin: 0 0 0.9rem;
+    padding-left: 1.1rem;
+    color: var(--nf-danger);
+}
+
+.pz-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.9rem;
+}
+
+.pz-toolbar .nf-search {
+    flex: 1 1 16rem;
+    max-width: 26rem;
+}

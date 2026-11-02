@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Heroicsoft.NetForge.Components" Version="1.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.14" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.14" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+		<!-- The host ships 13.x. The Hello sample insists on its own 12.x. -->
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="4.0.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Pluginz.Services\Pluginz.Services.csproj" />
+		<ProjectReference Include="..\Pluginz.NuGet\Pluginz.NuGet.csproj" />
+		<ProjectReference Include="..\Pluginz.Web\Pluginz.Web.csproj" />
+		<ProjectReference Include="..\samples\Pluginz.Samples.Contracts\Pluginz.Samples.Contracts.csproj" />
+
+		<!-- Built so that the tests can copy the output folders into a temporary plugins folder. -->
+		<ProjectReference Include="..\samples\Pluginz.Samples.Hello\Pluginz.Samples.Hello.csproj" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\samples\Pluginz.Samples.Web\Pluginz.Samples.Web.csproj" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+			<_Parameter1>SamplesRoot</_Parameter1>
+			<_Parameter2>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\samples\'))</_Parameter2>
+		</AssemblyAttribute>
+		<AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+			<_Parameter1>Configuration</_Parameter1>
+			<_Parameter2>$(Configuration)</_Parameter2>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+</Project>

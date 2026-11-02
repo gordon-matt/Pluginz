@@ -1,0 +1,129 @@
+@page "/pluginz/browse"
+
+<PageTitle>Browse NuGet</PageTitle>
+
+<PageHeader Title="Browse NuGet" Icon="cloud-download" Description="Find plugins on your NuGet feeds. Installing one downloads it with the libraries it needs that this site doesn't already have.">
+    <Actions>
+        <a class="nf-button" href="@PluginzRoutes.Plugins">Installed plugins</a>
+    </Actions>
+</PageHeader>
+
+@if (Packages is null)
+{
+    <EmptyState Icon="alert" Title="NuGet isn't turned on" Description="Call AddPluginzNuGet() when you register Pluginz to install plugins from packages." />
+}
+else if (denied)
+{
+    <EmptyState Icon="alert" Title="You can't install plugins" Description="Sign in with a role that is allowed to manage them." />
+}
+else
+{
+    <div class="pz-toolbar">
+        <SearchField Value="@query" ValueChanged="OnQueryChanged" OnSubmit="SearchAsync" Placeholder="Search packages" SubmitText="Search" />
+        <label class="nf-check">
+            <InputCheckbox @bind-Value="includePrerelease" />
+            Include prerelease
+        </label>
+        <div class="nf-chip-row">
+            <Chip Selected="@(!showUpdates)" OnClick="ShowSearch">Search</Chip>
+            <Chip Selected="@showUpdates" OnClick="ShowUpdatesAsync">Updates@(updates is { Count: > 0 } ? $" ({updates.Count})" : string.Empty)</Chip>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <p class="nf-muted">Loading.</p>
+    }
+    else if (error is not null)
+    {
+        <EmptyState Icon="alert" Title="That didn't work" Description="@error" />
+    }
+    else if (showUpdates)
+    {
+        @if (updates is null || updates.Count == 0)
+        {
+            <EmptyState Icon="check-circle" Title="Everything is up to date" Description="Plugins that came from NuGet are checked against their feeds." />
+        }
+        else
+        {
+            <Table>
+                <thead>
+                    <tr>
+                        <th>Plugin</th>
+                        <th>Installed</th>
+                        <th>Latest</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var update in updates)
+                    {
+                        <tr>
+                            <td>
+                                <div class="pz-plugin-name">@update.SystemName</div>
+                                <div class="nf-mono nf-small nf-muted">@update.PackageId</div>
+                            </td>
+                            <td class="nf-mono">@update.CurrentVersion</td>
+                            <td class="nf-mono">@update.LatestVersion</td>
+                            <td>
+                                <div class="pz-actions">
+                                    <button type="button" class="nf-button nf-button-primary" @onclick="() => UpdateAsync(update)" disabled="@(working is not null)">
+                                        @(working == update.PackageId ? "Updating" : "Update")
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </Table>
+        }
+    }
+    else if (results.Count == 0)
+    {
+        <EmptyState Icon="search" Title="No packages found" Description="Try another search. Only packages with the configured tag are listed." />
+    }
+    else
+    {
+        <CardGrid>
+            @foreach (var package in results)
+            {
+                <Card Title="@(package.Title ?? package.PackageId)" Description="@package.Description">
+                    <TitleEnd>
+                        <span class="nf-badge @(package.IsPrerelease ? "nf-badge-warning" : "nf-badge-muted")">@package.Version</span>
+                    </TitleEnd>
+                    <ChildContent>
+                        <p class="nf-small nf-muted">
+                            @package.PackageId
+                            @if (!string.IsNullOrWhiteSpace(package.Authors))
+                            {
+                                <text> · @package.Authors</text>
+                            }
+                            @if (package.DownloadCount is > 0)
+                            {
+                                <text> · @package.DownloadCount.Value.ToString("N0") downloads</text>
+                            }
+                        </p>
+                    </ChildContent>
+                    <Actions>
+                        @if (package.InstalledSystemName is null)
+                        {
+                            <button type="button" class="nf-button nf-button-primary" @onclick="() => InstallAsync(package)" disabled="@(working is not null)">
+                                @(working == package.PackageId ? "Installing" : "Install")
+                            </button>
+                        }
+                        else if (IsNewer(package))
+                        {
+                            <button type="button" class="nf-button nf-button-primary" @onclick="() => InstallAsync(package)" disabled="@(working is not null)">
+                                @(working == package.PackageId ? "Updating" : $"Update from {package.InstalledVersion}")
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="nf-badge nf-badge-success">Installed</span>
+                        }
+                    </Actions>
+                </Card>
+            }
+        </CardGrid>
+    }
+}

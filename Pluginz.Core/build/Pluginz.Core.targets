@@ -1,0 +1,78 @@
+<Project>
+
+	<!--
+		Imported automatically by the Pluginz.Core package. Active only when <IsPluginzPlugin>true</IsPluginzPlugin>.
+
+		Plugin projects should reference the host-provided contract assemblies like this, so that the plugin does not
+		carry its own copy and the types stay identical on both sides:
+
+			<ProjectReference Include="..\Pluginz.Core\Pluginz.Core.csproj">
+				<Private>false</Private>
+				<ExcludeAssets>runtime</ExcludeAssets>
+			</ProjectReference>
+
+		With a PackageReference use <PrivateAssets>all</PrivateAssets> and <ExcludeAssets>runtime</ExcludeAssets>.
+	-->
+
+	<PropertyGroup Condition="'$(IsPluginzPlugin)' == 'true'">
+		<PluginzSystemName Condition="'$(PluginzSystemName)' == ''">$(AssemblyName)</PluginzSystemName>
+		<PluginzFriendlyName Condition="'$(PluginzFriendlyName)' == '' and '$(Title)' != ''">$(Title)</PluginzFriendlyName>
+		<PluginzFriendlyName Condition="'$(PluginzFriendlyName)' == ''">$(PluginzSystemName)</PluginzFriendlyName>
+	</PropertyGroup>
+
+	<!-- Make static web assets travel with the plugin so the host can serve them from the plugin folder. -->
+	<ItemGroup Condition="'$(IsPluginzPlugin)' == 'true'">
+		<Content Update="wwwroot\**" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<!--
+		The Pluginz assemblies always come from the host. Keep them out of the plugin folder even when they arrive
+		as transitive references, so that a plugin cannot carry a second copy of its own contract.
+	-->
+	<Target Name="PluginzRemoveHostAssemblies"
+			BeforeTargets="_CopyFilesMarkedCopyLocal;ComputeResolvedFilesToPublishList"
+			Condition="'$(IsPluginzPlugin)' == 'true'">
+		<ItemGroup>
+			<ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
+									 Condition="('%(Extension)' == '.dll' or '%(Extension)' == '.pdb') and ('%(Filename)' == 'Pluginz.Core' or '%(Filename)' == 'Pluginz.Services' or '%(Filename)' == 'Pluginz.Web' or '%(Filename)' == 'Pluginz.NuGet' or '%(Filename)' == 'Pluginz.Components')" />
+		</ItemGroup>
+	</Target>
+
+	<!--
+		Writes plugin.json from project properties unless the project has its own plugin.json. The file lands in the
+		output folder and, when the project is packed, in the package under pluginz/plugin.json.
+	-->
+	<Target Name="PluginzGenerateManifest"
+			BeforeTargets="AssignTargetPaths"
+			Condition="'$(IsPluginzPlugin)' == 'true' and !Exists('$(MSBuildProjectDirectory)\plugin.json')">
+
+		<PropertyGroup>
+			<!--
+				Computed here, not at evaluation time, because IntermediateOutputPath is not final until the SDK targets ran.
+				MSBuild::NormalizePath rather than Path.GetFullPath(path, base): Visual Studio's MSBuild runs on .NET
+				Framework, which has no two-argument GetFullPath.
+			-->
+			<PluginzGeneratedManifest>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'pluginz', 'plugin.json'))</PluginzGeneratedManifest>
+			<_PzName>$(PluginzSystemName.Replace('\', '\\').Replace('"', '\"'))</_PzName>
+			<_PzFriendly>$(PluginzFriendlyName.Replace('\', '\\').Replace('"', '\"'))</_PzFriendly>
+			<_PzAuthor>$(Authors.Replace('\', '\\').Replace('"', '\"'))</_PzAuthor>
+			<_PzDescription>$(Description.Replace('\', '\\').Replace('"', '\"').Replace(';', '%3B'))</_PzDescription>
+			<_PzGroup>$(PluginzGroup.Replace('\', '\\').Replace('"', '\"'))</_PzGroup>
+			<_PzHostVersion>$(PluginzHostVersion.Replace('\', '\\').Replace('"', '\"'))</_PzHostVersion>
+			<_PzVersion>$(Version)</_PzVersion>
+			<_PzOrder Condition="'$(PluginzDisplayOrder)' == ''">0</_PzOrder>
+			<_PzOrder Condition="'$(PluginzDisplayOrder)' != ''">$(PluginzDisplayOrder)</_PzOrder>
+			<_PzPrivateJson>[]</_PzPrivateJson>
+			<_PzPrivateJson Condition="'$(PluginzPrivateAssemblies)' != ''">["$(PluginzPrivateAssemblies.Replace(';', '", "'))"]</_PzPrivateJson>
+			<_PzJson>{ "systemName": "$(_PzName)", "friendlyName": "$(_PzFriendly)", "version": "$(_PzVersion)", "author": "$(_PzAuthor)", "description": "$(_PzDescription)", "group": "$(_PzGroup)", "hostVersion": "$(_PzHostVersion)", "displayOrder": $(_PzOrder), "assembly": "$(TargetFileName)", "privateAssemblies": $(_PzPrivateJson) }</_PzJson>
+		</PropertyGroup>
+
+		<WriteLinesToFile File="$(PluginzGeneratedManifest)" Lines="$(_PzJson)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+
+		<ItemGroup>
+			<None Include="$(PluginzGeneratedManifest)" Link="plugin.json" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="pluginz\plugin.json" />
+		</ItemGroup>
+
+	</Target>
+
+</Project>

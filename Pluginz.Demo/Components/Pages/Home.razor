@@ -1,0 +1,33 @@
+@page "/"
+@using Pluginz.Registry
+@using Pluginz.Samples
+@inject IEnumerable<IGreeter> Greeters
+@inject IPluginRegistry Registry
+
+<PageTitle>Pluginz</PageTitle>
+
+<PageHeader Title="Pluginz demo" Icon="collection" Description="Plugins are loaded when the app starts. Install or enable one on the Plugins page, then restart.">
+    <Actions>
+        <a class="nf-button nf-button-primary" href="/pluginz">Manage plugins</a>
+        <a class="nf-button" href="/pluginz/browse">Browse NuGet</a>
+    </Actions>
+</PageHeader>
+
+<p>@Registry.ActivePlugins.Count active of @Registry.GetAll().Count plugins.</p>
+
+@if (!Greeters.Any())
+{
+    <EmptyState Icon="collection" Title="No plugin has contributed a greeter">
+        Install and enable <strong>Pluginz.Samples.Hello</strong>, then restart the app.
+    </EmptyState>
+}
+else
+{
+    <h3>Greeters contributed by plugins</h3>
+    <ul>
+        @foreach (var greeter in Greeters)
+        {
+            <li><strong>@greeter.Describe()</strong>: @greeter.Greet("Ada")</li>
+        }
+    </ul>
+}

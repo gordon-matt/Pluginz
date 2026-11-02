@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Title>Web sample</Title>
+		<Description>A plugin with a Blazor page, an MVC controller, a minimal API endpoint, static files and a menu entry.</Description>
+		<Version>1.0.0</Version>
+		<PackageTags>pluginz;sample</PackageTags>
+		<IsPluginzPlugin>true</IsPluginzPlugin>
+		<PluginzSystemName>Pluginz.Samples.Web</PluginzSystemName>
+		<PluginzGroup>Samples</PluginzGroup>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+	</PropertyGroup>
+
+	<Import Project="..\..\Pluginz.Core\build\Pluginz.Core.props" />
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- The host ships NetForge. Compile against it and let the host supply it at run time. -->
+		<PackageReference Include="Heroicsoft.NetForge.Components" Version="1.2.0" PrivateAssets="all" ExcludeAssets="runtime" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Pluginz.Core\Pluginz.Core.csproj">
+			<Private>false</Private>
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Pluginz.Web\Pluginz.Web.csproj">
+			<Private>false</Private>
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</ProjectReference>
+	</ItemGroup>
+
+	<Import Project="..\..\Pluginz.Core\build\Pluginz.Core.targets" />
+
+</Project>

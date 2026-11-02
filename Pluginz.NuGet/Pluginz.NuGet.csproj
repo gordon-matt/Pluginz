@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<RootNamespace>Pluginz.Packages</RootNamespace>
+		<Description>Search NuGet feeds and install plugins from NuGet packages, with their dependencies, for Pluginz.</Description>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="NuGet.Protocol" Version="7.9.0" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Pluginz.Services\Pluginz.Services.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="Pluginz.Tests" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+.sample-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--nf-border);
+    border-radius: var(--nf-radius);
+    background: var(--nf-surface);
+    color: var(--nf-text);
+}
+
+.sample-card p {
+    margin: 0 0 0.5rem;
+}

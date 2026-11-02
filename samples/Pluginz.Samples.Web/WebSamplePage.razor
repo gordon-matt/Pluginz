@@ -1,0 +1,29 @@
+@page "/samples/web"
+@inject IPluginRegistry Registry
+@inject SampleClock Clock
+
+<PageTitle>Web sample</PageTitle>
+
+<PageHeader Title="Web sample" Icon="star" Description="This page, its menu entry, its styles and its endpoints all come from a plugin.">
+</PageHeader>
+
+<link rel="stylesheet" href="_content/Pluginz.Samples.Web/sample.css" />
+
+<div class="sample-card">
+    <img src="_content/Pluginz.Samples.Web/sample.svg" alt="" width="64" height="64" />
+    <div>
+        <p>The plugin is <strong>@(info?.FriendlyName ?? "unknown")</strong> @info?.Version, loaded from <code>@info?.DirectoryPath</code>.</p>
+        <p>The time on the server is <strong>@Clock.UtcNow.ToString("u")</strong>, from a service the plugin registered.</p>
+        <p>
+            Endpoints:
+            <a href="/samples/web/ping">/samples/web/ping</a> (minimal API) and
+            <a href="/samples/web/api/time">/samples/web/api/time</a> (MVC controller).
+        </p>
+    </div>
+</div>
+
+@code {
+    private PluginInfo? info;
+
+    protected override void OnInitialized() => info = Registry.FindByType(typeof(WebSamplePage));
+}

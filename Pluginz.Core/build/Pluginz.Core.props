@@ -1,0 +1,14 @@
+<Project>
+
+	<!--
+		Imported automatically by the Pluginz.Core package. Set <IsPluginzPlugin>true</IsPluginzPlugin> in a plugin
+		project to get the settings that a loadable plugin needs.
+	-->
+	<PropertyGroup Condition="'$(IsPluginzPlugin)' == 'true'">
+		<!-- Write a .deps.json and let the host resolve the plugin's own dependencies from it. -->
+		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<GenerateDependencyFile>true</GenerateDependencyFile>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
+
+</Project>

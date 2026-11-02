@@ -1,0 +1,13 @@
+@using Pluginz.Components.Pages
+@using Pluginz.Web
+@inject IPluginWebAssemblies PluginAssemblies
+
+<ForgeRouter AppAssembly="typeof(Program).Assembly"
+             AdditionalAssemblies="@Assemblies"
+             NotFoundPage="typeof(Pages.NotFound)"
+             DefaultLayout="typeof(ShellLayout)" />
+
+@code {
+    // The admin pages, plus the pages of every active plugin: the router has to know about them as well as the endpoints do.
+    private IEnumerable<Assembly> Assemblies => [typeof(Plugins).Assembly, .. PluginAssemblies.Assemblies];
+}

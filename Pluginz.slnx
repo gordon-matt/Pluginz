@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Samples/">
+    <File Path="samples/pack-samples.ps1" />
+    <Project Path="samples/Pluginz.Samples.Contracts/Pluginz.Samples.Contracts.csproj" />
+    <Project Path="samples/Pluginz.Samples.Hello/Pluginz.Samples.Hello.csproj" />
+    <Project Path="samples/Pluginz.Samples.Web/Pluginz.Samples.Web.csproj" />
+  </Folder>
+  <Project Path="Pluginz.Core/Pluginz.Core.csproj" />
+  <Project Path="Pluginz.Services/Pluginz.Services.csproj" />
+  <Project Path="Pluginz.NuGet/Pluginz.NuGet.csproj" />
+  <Project Path="Pluginz.Web/Pluginz.Web.csproj" />
+  <Project Path="Pluginz.Components/Pluginz.Components.csproj" />
+  <Project Path="Pluginz.Tests/Pluginz.Tests.csproj" />
+  <Project Path="Pluginz.Demo/Pluginz.Demo.csproj" />
+</Solution>
