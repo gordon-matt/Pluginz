@@ -69,6 +69,14 @@ internal sealed class PluginDiscovery
                 continue;
             }
 
+            // A stray directory (for example a host's old shadow-copy folder) is not a plugin. A folder with a
+            // manifest, even a broken one, is still listed so the administrator can see the problem.
+            if (!File.Exists(Path.Combine(directory, PluginNames.ManifestFileName))
+                && !File.Exists(Path.Combine(directory, $"{folderName}.dll")))
+            {
+                continue;
+            }
+
             entries.Add(ReadEntry(directory, folderName, hostVersion));
         }
 

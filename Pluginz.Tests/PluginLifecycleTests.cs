@@ -27,6 +27,17 @@ public class PluginLifecycleTests
     }
 
     [Fact]
+    public void A_folder_with_no_manifest_and_no_assembly_is_not_a_plugin()
+    {
+        var root = TestHost.NewRoot();
+        Directory.CreateDirectory(Path.Combine(root, "Plugins", "bin"));
+
+        using var host = TestHost.Create(root);
+
+        Assert.Empty(host.Registry.GetAll());
+    }
+
+    [Fact]
     public async Task Install_runs_the_hook_and_waits_for_a_restart()
     {
         var root = TestHost.NewRoot();
