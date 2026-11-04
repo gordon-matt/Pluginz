@@ -196,7 +196,3 @@ The demo builds the sample plugins into `Pluginz.Demo/Plugins`. Open `/pluginz`,
 dotnet build Pluginz.slnx
 dotnet test Pluginz.Tests
 ```
-
-## License
-
-Apache-2.0.
