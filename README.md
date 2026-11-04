@@ -4,6 +4,14 @@ A plugin framework for ASP.NET Core and Blazor. A plugin is a folder, a `.zip`, 
 
 Plugins load once, while the host starts, because that is the only moment a plugin can still add services to the container. Changes made on the admin page take effect after a restart, and the page says so.
 
+## Screenshots
+
+<img src="https://github.com/gordon-matt/Pluginz/blob/master/_Misc/Screenshots/Manage.png" alt="Manage Plugins" />
+
+<img src="https://github.com/gordon-matt/Pluginz/blob/master/_Misc/Screenshots/Browse_NuGet.png" alt="Browse NuGet" />
+
+<img src="https://github.com/gordon-matt/Pluginz/blob/master/_Misc/Screenshots/Demo.png" alt="Demo" />
+
 ## Packages
 
 | Package | What it is |
