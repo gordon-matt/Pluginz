@@ -39,7 +39,7 @@ public sealed class PluginLoadContext : AssemblyLoadContext
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        var name = assemblyName.Name;
+        string? name = assemblyName.Name;
         if (string.IsNullOrEmpty(name))
         {
             return null;
@@ -57,22 +57,22 @@ public sealed class PluginLoadContext : AssemblyLoadContext
             }
         }
 
-        var path = resolver.ResolveAssemblyToPath(assemblyName) ?? ProbeManaged(assemblyName);
+        string? path = resolver.ResolveAssemblyToPath(assemblyName) ?? ProbeManaged(assemblyName);
         return path is null ? null : LoadFromAssemblyPath(path);
     }
 
     protected override nint LoadUnmanagedDll(string unmanagedDllName)
     {
-        var path = resolver.ResolveUnmanagedDllToPath(unmanagedDllName) ?? ProbeNative(unmanagedDllName);
+        string? path = resolver.ResolveUnmanagedDllToPath(unmanagedDllName) ?? ProbeNative(unmanagedDllName);
         return path is null ? nint.Zero : LoadUnmanagedDllFromPath(path);
     }
 
     private string? ProbeManaged(AssemblyName assemblyName)
     {
-        var fileName = $"{assemblyName.Name}.dll";
+        string fileName = $"{assemblyName.Name}.dll";
 
         // Satellite assemblies sit in a folder named after the culture.
-        var candidate = string.IsNullOrEmpty(assemblyName.CultureName) || assemblyName.CultureName == "neutral"
+        string candidate = string.IsNullOrEmpty(assemblyName.CultureName) || assemblyName.CultureName == "neutral"
             ? Path.Combine(directory, fileName)
             : Path.Combine(directory, assemblyName.CultureName, $"{assemblyName.Name}.dll");
 
@@ -82,15 +82,15 @@ public sealed class PluginLoadContext : AssemblyLoadContext
         }
 
         // Package layouts keep libraries one level down, under runtimes/{rid}/lib/{tfm}/.
-        foreach (var rid in RuntimeIdentifiers())
+        foreach (string rid in RuntimeIdentifiers())
         {
-            var runtimeLib = Path.Combine(directory, "runtimes", rid, "lib");
+            string runtimeLib = Path.Combine(directory, "runtimes", rid, "lib");
             if (!Directory.Exists(runtimeLib))
             {
                 continue;
             }
 
-            var match = Directory.EnumerateFiles(runtimeLib, fileName, SearchOption.AllDirectories).FirstOrDefault();
+            string? match = Directory.EnumerateFiles(runtimeLib, fileName, SearchOption.AllDirectories).FirstOrDefault();
             if (match is not null)
             {
                 return match;
@@ -140,8 +140,8 @@ public sealed class PluginLoadContext : AssemblyLoadContext
 
     private static IEnumerable<string> RuntimeIdentifiers()
     {
-        var os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsMacOS() ? "osx" : "linux";
-        var architecture = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
+        string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsMacOS() ? "osx" : "linux";
+        string architecture = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
 
         yield return RuntimeInformation.RuntimeIdentifier;
         yield return $"{os}-{architecture}";

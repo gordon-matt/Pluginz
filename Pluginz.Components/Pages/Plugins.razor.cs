@@ -273,7 +273,7 @@ public partial class Plugins : IDisposable
         }
 
         busy = true;
-        var temp = Path.Combine(Path.GetTempPath(), $"pluginz-{Guid.NewGuid():N}.upload");
+        string temp = Path.Combine(Path.GetTempPath(), $"pluginz-{Guid.NewGuid():N}.upload");
 
         try
         {

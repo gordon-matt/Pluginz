@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Components.Endpoints;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
-using Pluginz.Discovery;
 using Pluginz.Hosting;
 using Pluginz.Registry;
 using Pluginz.Web;
@@ -69,10 +66,10 @@ public static class PluginWebExtensions
 
             foreach (var entry in runtime.RegistryInternal.ActiveEntries)
             {
-                var wwwroot = entry.LoadedDirectory is null ? null : Path.Combine(entry.LoadedDirectory, "wwwroot");
+                string? wwwroot = entry.LoadedDirectory is null ? null : Path.Combine(entry.LoadedDirectory, "wwwroot");
                 if (wwwroot is not null && Directory.Exists(wwwroot))
                 {
-                    var assemblyName = entry.Assembly!.GetName().Name!;
+                    string assemblyName = entry.Assembly!.GetName().Name!;
                     var provider = new PhysicalFileProvider(wwwroot);
 
                     app.UseStaticFiles(new StaticFileOptions { FileProvider = provider, RequestPath = $"/_content/{assemblyName}" });
@@ -135,7 +132,7 @@ public static class PluginWebExtensions
         // Compiled Razor views live in a separate assembly that the main one points to. The framework would load it
         // into the default context, so load it into the plugin's own context instead.
         var context = AssemblyLoadContext.GetLoadContext(assembly);
-        var directory = Path.GetDirectoryName(assembly.Location);
+        string? directory = Path.GetDirectoryName(assembly.Location);
         if (context is null || directory is null)
         {
             yield break;
@@ -143,7 +140,7 @@ public static class PluginWebExtensions
 
         foreach (var related in assembly.GetCustomAttributes<RelatedAssemblyAttribute>())
         {
-            var path = Path.Combine(directory, $"{related.AssemblyFileName}.dll");
+            string path = Path.Combine(directory, $"{related.AssemblyFileName}.dll");
             if (File.Exists(path))
             {
                 yield return context.LoadFromAssemblyPath(path);

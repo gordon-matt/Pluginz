@@ -3,7 +3,6 @@ using Microsoft.Extensions.Hosting;
 using Pluginz.Hosting;
 using Pluginz.Management;
 using Pluginz.Registry;
-using Pluginz.State;
 
 namespace Pluginz;
 

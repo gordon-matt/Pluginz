@@ -10,18 +10,15 @@ public sealed class PluginzMenuContributor : INetForgeMenuContributor
 
     public string DefaultMenu => "Settings";
 
-    public void Contribute(INetForgeMenuGroupBuilder group, Action<NetForgeMenuItemOptions>? configure)
+    public void Contribute(INetForgeMenuGroupBuilder group, Action<NetForgeMenuItemOptions>? configure) => group.AddCustom(item =>
     {
-        group.AddCustom(item =>
-        {
-            item.Title = "Plugins";
-            item.Url = PluginzRoutes.Plugins;
-            item.Icon = "collection";
-            item.MatchAll = true;
-            item.ActivePaths = [PluginzRoutes.Plugins, PluginzRoutes.Browse];
-            configure?.Invoke(item);
-        });
-    }
+        item.Title = "Plugins";
+        item.Url = PluginzRoutes.Plugins;
+        item.Icon = "collection";
+        item.MatchAll = true;
+        item.ActivePaths = [PluginzRoutes.Plugins, PluginzRoutes.Browse];
+        configure?.Invoke(item);
+    });
 }
 
 public static class PluginzMenuExtensions

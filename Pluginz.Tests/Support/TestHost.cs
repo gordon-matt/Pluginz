@@ -51,7 +51,7 @@ public sealed class TestHost : IDisposable
 
     public static string NewRoot()
     {
-        var root = Path.Combine(Path.GetTempPath(), "pluginz-tests", Guid.NewGuid().ToString("N"));
+        string root = Path.Combine(Path.GetTempPath(), "pluginz-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         return root;
     }
@@ -60,8 +60,8 @@ public sealed class TestHost : IDisposable
     public static string DeploySample(string root, string project, string? systemName = null)
     {
         var metadata = typeof(TestHost).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>().ToDictionary(a => a.Key, a => a.Value);
-        var source = Path.Combine(metadata["SamplesRoot"]!, project, "bin", metadata["Configuration"]!, "net10.0");
-        var target = Path.Combine(root, "Plugins", systemName ?? project);
+        string source = Path.Combine(metadata["SamplesRoot"]!, project, "bin", metadata["Configuration"]!, "net10.0");
+        string target = Path.Combine(root, "Plugins", systemName ?? project);
 
         CopyDirectory(source, target);
         return target;
@@ -76,12 +76,12 @@ public sealed class TestHost : IDisposable
     public static void CopyDirectory(string source, string target)
     {
         Directory.CreateDirectory(target);
-        foreach (var file in Directory.EnumerateFiles(source))
+        foreach (string file in Directory.EnumerateFiles(source))
         {
             File.Copy(file, Path.Combine(target, Path.GetFileName(file)), overwrite: true);
         }
 
-        foreach (var directory in Directory.EnumerateDirectories(source))
+        foreach (string directory in Directory.EnumerateDirectories(source))
         {
             CopyDirectory(directory, Path.Combine(target, Path.GetFileName(directory)));
         }

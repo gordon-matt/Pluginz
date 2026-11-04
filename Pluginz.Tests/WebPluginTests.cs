@@ -1,8 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
-using Pluginz.Registry;
 using Pluginz.Tests.Support;
 using Pluginz.Web;
 
@@ -15,7 +13,7 @@ public class WebPluginTests
     /// <summary>Deploys and installs the web sample in a temporary folder, then starts a web host over it, as a restart would.</summary>
     private static async Task<(WebApplication App, HttpClient Client)> StartAsync(bool install = true)
     {
-        var root = TestHost.NewRoot();
+        string root = TestHost.NewRoot();
         TestHost.DeploySample(root, WebSample);
 
         if (install)

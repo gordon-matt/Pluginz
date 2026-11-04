@@ -28,16 +28,16 @@ internal static class PackageLayout
         if (nearest is not null)
         {
             var group = groups.First(g => g.TargetFramework.Equals(nearest));
-            foreach (var item in group.Items)
+            foreach (string item in group.Items)
             {
                 // lib/{tfm}/Some.dll  ->  Some.dll, and lib/{tfm}/de/Some.resources.dll  ->  de/Some.resources.dll
-                var parts = item.Split('/');
+                string[] parts = item.Split('/');
                 if (parts.Length < 3 || parts[^1] == "_._" || item.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                var relative = string.Join('/', parts.Skip(2));
+                string relative = string.Join('/', parts.Skip(2));
                 if (await CopyAsync(reader, item, root, relative, overwrite, cancellationToken) && parts.Length == 3)
                 {
                     copied.Add(parts[^1]);
@@ -45,7 +45,7 @@ internal static class PackageLayout
             }
         }
 
-        foreach (var file in reader.GetFiles())
+        foreach (string file in reader.GetFiles())
         {
             if (file.StartsWith("runtimes/", StringComparison.OrdinalIgnoreCase) && !file.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
             {
@@ -70,7 +70,7 @@ internal static class PackageLayout
         var nuspec = reader.NuspecReader;
         var manifest = new PluginManifest();
 
-        var entry = reader.GetFiles().FirstOrDefault(file =>
+        string? entry = reader.GetFiles().FirstOrDefault(file =>
             string.Equals(file, PluginNames.PackageManifestPath, StringComparison.OrdinalIgnoreCase)
             || string.Equals(file, PluginNames.ManifestFileName, StringComparison.OrdinalIgnoreCase));
 
@@ -142,8 +142,8 @@ internal static class PackageLayout
         bool overwrite,
         CancellationToken cancellationToken)
     {
-        var rootFull = Path.GetFullPath(root) + Path.DirectorySeparatorChar;
-        var destination = Path.GetFullPath(Path.Combine(root, relative));
+        string rootFull = Path.GetFullPath(root) + Path.DirectorySeparatorChar;
+        string destination = Path.GetFullPath(Path.Combine(root, relative));
 
         // A package is untrusted input. Never write outside the plugin folder.
         if (!destination.StartsWith(rootFull, StringComparison.OrdinalIgnoreCase))

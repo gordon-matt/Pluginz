@@ -44,7 +44,7 @@ public sealed class TestFeed
 
         nuspec.AppendLine("  </metadata>").AppendLine("</package>");
 
-        var path = System.IO.Path.Combine(Path, $"{id}.{version}.nupkg");
+        string path = System.IO.Path.Combine(Path, $"{id}.{version}.nupkg");
         using var stream = File.Create(path);
         using var zip = new ZipArchive(stream, ZipArchiveMode.Create);
 
@@ -60,8 +60,8 @@ public sealed class TestFeed
     /// <summary>Adds a plugin package built from the Hello sample's build output.</summary>
     public string AddHello(string version = "1.0.0", IReadOnlyList<(string Id, string Range)>? dependencies = null)
     {
-        var output = TestHost.SampleOutput("Pluginz.Samples.Hello");
-        var manifest = File.ReadAllText(System.IO.Path.Combine(output, "plugin.json"));
+        string output = TestHost.SampleOutput("Pluginz.Samples.Hello");
+        string manifest = File.ReadAllText(System.IO.Path.Combine(output, "plugin.json"));
 
         return Add(
             "Pluginz.Samples.Hello",

@@ -20,25 +20,7 @@ public sealed record PluginAccess(string? TenantId = null, IReadOnlyCollection<s
     public static PluginAccess Everyone { get; } = new(Unrestricted: true);
 
     /// <summary>Whether a plugin with these restrictions is available to this caller.</summary>
-    public bool Allows(IReadOnlyCollection<string> tenants, IReadOnlyCollection<string> roles)
-    {
-        if (Unrestricted)
-        {
-            return true;
-        }
-
-        if (tenants.Count > 0
-            && !string.IsNullOrWhiteSpace(TenantId)
-            && !tenants.Contains(TenantId, StringComparer.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (roles.Count > 0)
-        {
-            return Roles is { Count: > 0 } && Roles.Any(role => roles.Contains(role, StringComparer.OrdinalIgnoreCase));
-        }
-
-        return true;
-    }
+    public bool Allows(IReadOnlyCollection<string> tenants, IReadOnlyCollection<string> roles) => Unrestricted || ((tenants.Count <= 0
+            || string.IsNullOrWhiteSpace(TenantId)
+            || tenants.Contains(TenantId, StringComparer.OrdinalIgnoreCase)) && (roles.Count <= 0 || (Roles is { Count: > 0 } && Roles.Any(role => roles.Contains(role, StringComparer.OrdinalIgnoreCase)))));
 }

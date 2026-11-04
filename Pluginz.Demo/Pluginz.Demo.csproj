@@ -12,8 +12,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Heroicsoft.NetForge.Abstractions" Version="1.2.0" />
-		<PackageReference Include="Heroicsoft.NetForge.Components" Version="1.2.0" />
+		<PackageReference Include="Heroicsoft.NetForge.Abstractions" Version="1.2.2" />
+		<PackageReference Include="Heroicsoft.NetForge.Components" Version="1.2.2" />
 		<ProjectReference Include="..\Pluginz.Components\Pluginz.Components.csproj" />
 		<ProjectReference Include="..\Pluginz.NuGet\Pluginz.NuGet.csproj" />
 		<ProjectReference Include="..\Pluginz.Web\Pluginz.Web.csproj" />

@@ -1,7 +1,6 @@
 using Heroicsoft.NetForge.Abstractions.Auth;
 using Heroicsoft.NetForge.Components;
 using Heroicsoft.NetForge.Components.Layout;
-using Heroicsoft.NetForge.Components.Navigation;
 using Pluginz;
 using Pluginz.Components;
 using Pluginz.Components.Pages;
@@ -26,8 +25,8 @@ builder.Services.AddSingleton<IAuthProviderService, DemoAuth>();
 builder.Services.Configure<ForgeShellOptions>(shell =>
 {
     shell.Brand = "Pluginz";
-    shell.LogoUrl = "img/Logo.svg";
-    shell.MarkUrl = "img/Icon.svg";
+    shell.LogoUrl = "img/Logo.png";
+    shell.MarkUrl = "img/Icon.png";
     shell.UseSharedMenu = true;
     shell.ShowUserMenu = false;
 });

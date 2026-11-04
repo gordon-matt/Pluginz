@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -48,8 +47,8 @@ internal sealed partial class PluginPackageService : IPluginPackageService
         int take = 30,
         CancellationToken cancellationToken = default)
     {
-        var tag = options.TagFilter?.Trim();
-        var remoteTerm = string.Join(' ', new[]
+        string? tag = options.TagFilter?.Trim();
+        string remoteTerm = string.Join(' ', new[]
         {
             string.IsNullOrEmpty(tag) ? null : $"tags:{tag}",
             query?.Trim(),
@@ -67,7 +66,7 @@ internal sealed partial class PluginPackageService : IPluginPackageService
             }
 
             // A server understands the "tags:" field. A folder feed only matches plain text, so it gets the bare query.
-            var term = repository.PackageSource.IsLocal ? query?.Trim() ?? string.Empty : remoteTerm;
+            string term = repository.PackageSource.IsLocal ? query?.Trim() ?? string.Empty : remoteTerm;
             var page = await search.SearchAsync(term, new SearchFilter(includePrerelease), skip, take, nugetLogger, cancellationToken);
 
             return [.. page.Where(metadata => HasTag(metadata, tag) && (includePrerelease || !metadata.Identity.Version.IsPrerelease))];
@@ -76,9 +75,9 @@ internal sealed partial class PluginPackageService : IPluginPackageService
         // The feeds are searched at the same time, so one slow feed does not hold up the others.
         var searches = repositories.Select(SearchRepositoryAsync).ToList();
 
-        for (var index = 0; index < repositories.Count; index++)
+        for (int index = 0; index < repositories.Count; index++)
         {
-            var source = repositories[index].PackageSource.Name;
+            string source = repositories[index].PackageSource.Name;
 
             try
             {
@@ -156,7 +155,7 @@ internal sealed partial class PluginPackageService : IPluginPackageService
         }
 
         using var cache = new SourceCacheContext();
-        var staging = Path.Combine(runtime.Paths.StagingRoot, Guid.NewGuid().ToString("N"));
+        string staging = Path.Combine(runtime.Paths.StagingRoot, Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(staging);
 
         try
@@ -174,13 +173,10 @@ internal sealed partial class PluginPackageService : IPluginPackageService
                 }
             }
 
-            var downloaded = await DownloadAsync(packageId, wanted, Path.Combine(staging, "package.nupkg"), cache, cancellationToken);
-            if (downloaded is null)
-            {
-                return Result<PluginInfo>.NotFound($"Package '{packageId}' {wanted.ToNormalizedString()} was not found on the configured feeds.");
-            }
-
-            return await InstallPackageAsync(Path.Combine(staging, "package.nupkg"), downloaded, staging, cache, cancellationToken);
+            string? downloaded = await DownloadAsync(packageId, wanted, Path.Combine(staging, "package.nupkg"), cache, cancellationToken);
+            return downloaded is null
+                ? Result<PluginInfo>.NotFound($"Package '{packageId}' {wanted.ToNormalizedString()} was not found on the configured feeds.")
+                : await InstallPackageAsync(Path.Combine(staging, "package.nupkg"), downloaded, staging, cache, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -200,12 +196,12 @@ internal sealed partial class PluginPackageService : IPluginPackageService
         }
 
         using var cache = new SourceCacheContext();
-        var staging = Path.Combine(runtime.Paths.StagingRoot, Guid.NewGuid().ToString("N"));
+        string staging = Path.Combine(runtime.Paths.StagingRoot, Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(staging);
 
         try
         {
-            var path = Path.Combine(staging, "package.nupkg");
+            string path = Path.Combine(staging, "package.nupkg");
             await using (var file = File.Create(path))
             {
                 await package.CopyToAsync(file, cancellationToken);
@@ -272,7 +268,7 @@ internal sealed partial class PluginPackageService : IPluginPackageService
             return Result<PluginInfo>.Invalid(new ValidationError("Package", $"The package is larger than {options.MaxPackageMegabytes} MB."));
         }
 
-        var pluginRoot = Path.Combine(staging, "plugin");
+        string pluginRoot = Path.Combine(staging, "plugin");
         Directory.CreateDirectory(pluginRoot);
 
         await using var stream = File.OpenRead(packagePath);
@@ -330,7 +326,7 @@ internal sealed partial class PluginPackageService : IPluginPackageService
     {
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { root.GetIdentity().Id };
         var queue = new Queue<PackageDependency>(PackageLayout.GetDependencies(root, target));
-        var downloaded = 0;
+        int downloaded = 0;
 
         while (queue.TryDequeue(out var dependency))
         {
@@ -371,7 +367,7 @@ internal sealed partial class PluginPackageService : IPluginPackageService
                 return Result.Error($"The dependency '{dependency.Id}' {range.OriginalString} was not found on the configured feeds.");
             }
 
-            var path = Path.Combine(Path.GetDirectoryName(pluginRoot)!, $"dep-{Guid.NewGuid():N}.nupkg");
+            string path = Path.Combine(Path.GetDirectoryName(pluginRoot)!, $"dep-{Guid.NewGuid():N}.nupkg");
             if (await DownloadAsync(dependency.Id, best, path, cache, cancellationToken) is null)
             {
                 return Result.Error($"The dependency '{dependency.Id}' {best.ToNormalizedString()} could not be downloaded.");
@@ -452,7 +448,7 @@ internal sealed partial class PluginPackageService : IPluginPackageService
     private SourceRepository CreateRepository(PluginPackageSource source)
     {
         // A feed is a URL or a folder. A relative folder is relative to the content root, not to wherever the process started.
-        var location = Uri.TryCreate(source.Url, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" or "file"
+        string location = Uri.TryCreate(source.Url, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" or "file"
             ? source.Url
             : Path.GetFullPath(source.Url, runtime.Paths.ContentRoot);
 

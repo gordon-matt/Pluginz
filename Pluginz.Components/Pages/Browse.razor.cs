@@ -89,7 +89,7 @@ public partial class Browse
     private async Task InstallAsync(PluginPackageInfo package)
     {
         working = package.PackageId;
-        var wasInstalled = package.InstalledSystemName is not null;
+        bool wasInstalled = package.InstalledSystemName is not null;
 
         try
         {

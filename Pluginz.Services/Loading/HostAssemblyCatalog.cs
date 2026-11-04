@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Pluginz.Loading;
@@ -16,14 +15,14 @@ public sealed class HostAssemblyCatalog
     {
         if (AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") is string list)
         {
-            foreach (var path in list.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
+            foreach (string path in list.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
             {
                 paths.TryAdd(Path.GetFileNameWithoutExtension(path), path);
             }
         }
 
         // .../dotnet/shared/Microsoft.NETCore.App/10.0.x/  ->  .../dotnet/shared/
-        var runtimeDirectory = RuntimeEnvironment.GetRuntimeDirectory().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string runtimeDirectory = RuntimeEnvironment.GetRuntimeDirectory().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         frameworkRoot = Directory.GetParent(Path.GetDirectoryName(runtimeDirectory) ?? runtimeDirectory)?.FullName;
     }
 
@@ -36,13 +35,13 @@ public sealed class HostAssemblyCatalog
     /// <summary>Whether the assembly belongs to a shared framework such as Microsoft.NETCore.App or Microsoft.AspNetCore.App.</summary>
     public bool IsFramework(string assemblyName) =>
         frameworkRoot is not null
-        && paths.TryGetValue(assemblyName, out var path)
+        && paths.TryGetValue(assemblyName, out string? path)
         && path.StartsWith(frameworkRoot, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>The file version of the host's copy of an assembly, or null when the host does not have it.</summary>
     public Version? GetVersion(string assemblyName)
     {
-        if (!paths.TryGetValue(assemblyName, out var path))
+        if (!paths.TryGetValue(assemblyName, out string? path))
         {
             return null;
         }

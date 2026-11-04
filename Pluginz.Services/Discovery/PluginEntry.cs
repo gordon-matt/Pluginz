@@ -56,33 +56,13 @@ internal sealed class PluginEntry
 
     public IReadOnlyList<string> Roles => State.Roles ?? Manifest.Roles;
 
-    public PluginStatus Status
-    {
-        get
-        {
-            if (Problems.Count > 0)
-            {
-                return PluginStatus.Incompatible;
-            }
-
-            if (!State.Installed || !State.Enabled)
-            {
-                if (IsLoaded)
-                {
-                    return PluginStatus.PendingDeactivation;
-                }
-
-                return State.Installed ? PluginStatus.Disabled : PluginStatus.NotInstalled;
-            }
-
-            if (IsLoaded)
-            {
-                return PluginStatus.Active;
-            }
-
-            return ActivationFailed || ActivationProblems.Count > 0 ? PluginStatus.Failed : PluginStatus.PendingActivation;
-        }
-    }
+    public PluginStatus Status => Problems.Count > 0
+                ? PluginStatus.Incompatible
+                : !State.Installed || !State.Enabled
+                ? IsLoaded ? PluginStatus.PendingDeactivation : State.Installed ? PluginStatus.Disabled : PluginStatus.NotInstalled
+                : IsLoaded
+                ? PluginStatus.Active
+                : ActivationFailed || ActivationProblems.Count > 0 ? PluginStatus.Failed : PluginStatus.PendingActivation;
 
     public bool RestartRequired =>
         Status is PluginStatus.PendingActivation or PluginStatus.PendingDeactivation

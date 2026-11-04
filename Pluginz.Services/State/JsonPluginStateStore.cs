@@ -3,15 +3,14 @@ namespace Pluginz.State;
 /// <summary>Stores the state in one JSON file. Writes go to a temporary file first, so a crash cannot leave half a file.</summary>
 public sealed class JsonPluginStateStore : IPluginStateStore
 {
-    private readonly string path;
     private readonly Lock gate = new();
 
     public JsonPluginStateStore(string path)
     {
-        this.path = path;
+        FilePath = path;
     }
 
-    public string FilePath => path;
+    public string FilePath { get; }
 
     public PluginStateDocument Load()
     {
@@ -33,14 +32,14 @@ public sealed class JsonPluginStateStore : IPluginStateStore
 
     private PluginStateDocument Read()
     {
-        if (!File.Exists(path))
+        if (!File.Exists(FilePath))
         {
             return new PluginStateDocument();
         }
 
         try
         {
-            using var stream = File.OpenRead(path);
+            using var stream = File.OpenRead(FilePath);
             var document = JsonSerializer.Deserialize<PluginStateDocument>(stream, PluginzJson.Options) ?? new PluginStateDocument();
 
             // JSON loses the comparer, so rebuild the dictionary with the case-insensitive one.
@@ -49,16 +48,16 @@ public sealed class JsonPluginStateStore : IPluginStateStore
         }
         catch (JsonException ex)
         {
-            throw new InvalidDataException($"The plugin state file '{path}' is not valid JSON. Fix or delete it.", ex);
+            throw new InvalidDataException($"The plugin state file '{FilePath}' is not valid JSON. Fix or delete it.", ex);
         }
     }
 
     private void Write(PluginStateDocument document)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
 
-        var temp = $"{path}.{Guid.NewGuid():N}.tmp";
+        string temp = $"{FilePath}.{Guid.NewGuid():N}.tmp";
         File.WriteAllText(temp, JsonSerializer.Serialize(document, PluginzJson.Options));
-        File.Move(temp, path, overwrite: true);
+        File.Move(temp, FilePath, overwrite: true);
     }
 }

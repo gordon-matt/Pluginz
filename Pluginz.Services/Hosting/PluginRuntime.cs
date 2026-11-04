@@ -14,7 +14,6 @@ namespace Pluginz.Hosting;
 /// </summary>
 public sealed class PluginRuntime
 {
-    private readonly IConfiguration configuration;
     private readonly string contentRootPath;
     private readonly string environmentName;
     private readonly List<(LogLevel Level, string Message, Exception? Error)> startupLog = [];
@@ -22,7 +21,7 @@ public sealed class PluginRuntime
     private PluginRuntime(PluginzOptions options, IConfiguration configuration, string contentRootPath, string environmentName)
     {
         Options = options;
-        this.configuration = configuration;
+        Configuration = configuration;
         this.contentRootPath = contentRootPath;
         this.environmentName = environmentName;
 
@@ -52,7 +51,7 @@ public sealed class PluginRuntime
 
     public PluginPaths Paths { get; }
 
-    internal IConfiguration Configuration => configuration;
+    internal IConfiguration Configuration { get; }
 
     public IPluginStateStore StateStore { get; }
 
@@ -81,7 +80,7 @@ public sealed class PluginRuntime
     {
         foreach (var entry in RegistryInternal.ActiveEntries)
         {
-            var before = services.Count;
+            int before = services.Count;
 
             try
             {
@@ -120,7 +119,7 @@ public sealed class PluginRuntime
         }
 
         // Not loaded: use a collectible context so the plugin's files and types are released afterwards.
-        var directory = Options.ShadowCopy
+        string directory = Options.ShadowCopy
             ? ShadowCopier.Copy(entry.Directory, Paths.ShadowRoot, entry.SystemName)
             : entry.Directory;
 
@@ -142,7 +141,7 @@ public sealed class PluginRuntime
             context.Unload();
         }
 
-        for (var attempt = 0; attempt < 8 && reference.IsAlive; attempt++)
+        for (int attempt = 0; attempt < 8 && reference.IsAlive; attempt++)
         {
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -176,7 +175,7 @@ public sealed class PluginRuntime
             : plugin.UninstallAsync(context, cancellationToken);
 
     internal PluginContext CreateContext(PluginInfo info) =>
-        new(info, configuration, contentRootPath, environmentName, Paths.DataRoot);
+        new(info, Configuration, contentRootPath, environmentName, Paths.DataRoot);
 
     private void Activate()
     {
@@ -217,7 +216,7 @@ public sealed class PluginRuntime
 
     private void Load(PluginEntry entry)
     {
-        var directory = Options.ShadowCopy
+        string directory = Options.ShadowCopy
             ? ShadowCopier.Copy(entry.Directory, Paths.ShadowRoot, entry.SystemName)
             : entry.Directory;
 
@@ -271,7 +270,7 @@ public sealed class PluginRuntime
 
         void Visit(PluginEntry entry)
         {
-            if (visited.TryGetValue(entry.SystemName, out var done))
+            if (visited.TryGetValue(entry.SystemName, out bool done))
             {
                 if (!done)
                 {
@@ -319,19 +318,16 @@ public sealed class PluginRuntime
             .Where(type => type is { IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false } && typeof(IPlugin).IsAssignableFrom(type))
             .ToList();
 
-        if (manifest.EntryType is not null)
-        {
-            return candidates.FirstOrDefault(type => type.FullName == manifest.EntryType)
-                ?? throw new InvalidOperationException($"The entry type '{manifest.EntryType}' was not found in {manifest.AssemblyFileName}.");
-        }
-
-        return candidates.Count switch
-        {
-            0 => null,
-            1 => candidates[0],
-            _ => throw new InvalidOperationException(
-                $"{manifest.AssemblyFileName} has {candidates.Count} IPlugin types. Set entryType in {PluginNames.ManifestFileName} to pick one."),
-        };
+        return manifest.EntryType is not null
+            ? candidates.FirstOrDefault(type => type.FullName == manifest.EntryType)
+                ?? throw new InvalidOperationException($"The entry type '{manifest.EntryType}' was not found in {manifest.AssemblyFileName}.")
+            : candidates.Count switch
+            {
+                0 => null,
+                1 => candidates[0],
+                _ => throw new InvalidOperationException(
+                    $"{manifest.AssemblyFileName} has {candidates.Count} IPlugin types. Set entryType in {PluginNames.ManifestFileName} to pick one."),
+            };
     }
 
     private static object CreateInstance(Type type) =>

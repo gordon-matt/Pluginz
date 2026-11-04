@@ -41,12 +41,7 @@ public static class PluginzAccess
         if (!string.IsNullOrWhiteSpace(policy))
         {
             var authorization = services.GetService<IAuthorizationService>();
-            if (authorization is null)
-            {
-                return false;
-            }
-
-            return (await authorization.AuthorizeAsync(user, policy)).Succeeded;
+            return authorization is not null && (await authorization.AuthorizeAsync(user, policy)).Succeeded;
         }
 
         return user.Identity?.IsAuthenticated == true;

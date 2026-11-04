@@ -25,16 +25,16 @@ internal sealed class PluginDiscovery
             return;
         }
 
-        foreach (var staged in Directory.EnumerateDirectories(paths.PendingRoot))
+        foreach (string staged in Directory.EnumerateDirectories(paths.PendingRoot))
         {
-            var name = Path.GetFileName(staged);
-            var target = paths.PluginDirectory(name);
+            string name = Path.GetFileName(staged);
+            string target = paths.PluginDirectory(name);
 
             try
             {
                 if (Directory.Exists(target))
                 {
-                    var trash = Path.Combine(paths.TrashRoot, Guid.NewGuid().ToString("N"));
+                    string trash = Path.Combine(paths.TrashRoot, Guid.NewGuid().ToString("N"));
                     Directory.CreateDirectory(paths.TrashRoot);
                     Directory.Move(target, trash);
                     TryDelete(trash);
@@ -61,9 +61,9 @@ internal sealed class PluginDiscovery
 
         var hostVersion = ResolveHostVersion();
 
-        foreach (var directory in Directory.EnumerateDirectories(paths.PluginsRoot).OrderBy(d => d, StringComparer.OrdinalIgnoreCase))
+        foreach (string? directory in Directory.EnumerateDirectories(paths.PluginsRoot).OrderBy(d => d, StringComparer.OrdinalIgnoreCase))
         {
-            var folderName = Path.GetFileName(directory);
+            string folderName = Path.GetFileName(directory);
             if (folderName.StartsWith('.'))
             {
                 continue;
@@ -92,7 +92,7 @@ internal sealed class PluginDiscovery
             return result;
         }
 
-        foreach (var staged in Directory.EnumerateDirectories(paths.PendingRoot))
+        foreach (string staged in Directory.EnumerateDirectories(paths.PendingRoot))
         {
             var manifest = ReadManifest(staged, Path.GetFileName(staged), out _);
             result[Path.GetFileName(staged)] = manifest?.Version ?? "?";
@@ -104,7 +104,7 @@ internal sealed class PluginDiscovery
     /// <summary>Reads and checks a manifest outside the plugins folder, for example in an unpacked upload.</summary>
     public (PluginManifest? Manifest, List<string> Problems) Inspect(string directory, string expectedName)
     {
-        var manifest = ReadManifest(directory, expectedName, out var error);
+        var manifest = ReadManifest(directory, expectedName, out string? error);
         var problems = new List<string>();
         if (error is not null)
         {
@@ -121,7 +121,7 @@ internal sealed class PluginDiscovery
 
     private PluginEntry ReadEntry(string directory, string folderName, NuGetVersion? hostVersion)
     {
-        var manifest = ReadManifest(directory, folderName, out var error);
+        var manifest = ReadManifest(directory, folderName, out string? error);
         var problems = new List<string>();
 
         if (error is not null)
@@ -149,15 +149,15 @@ internal sealed class PluginDiscovery
     private static PluginManifest? ReadManifest(string directory, string folderName, out string? error)
     {
         error = null;
-        var manifestPath = Path.Combine(directory, PluginNames.ManifestFileName);
+        string manifestPath = Path.Combine(directory, PluginNames.ManifestFileName);
 
         if (!File.Exists(manifestPath))
         {
             // A folder with a single {folder}.dll is the simplest possible plugin. Synthesize a manifest.
-            var dll = Path.Combine(directory, $"{folderName}.dll");
+            string dll = Path.Combine(directory, $"{folderName}.dll");
             if (PluginNames.IsValidSystemName(folderName) && File.Exists(dll))
             {
-                var version = FileVersionInfo.GetVersionInfo(dll).ProductVersion ?? "1.0.0";
+                string version = FileVersionInfo.GetVersionInfo(dll).ProductVersion ?? "1.0.0";
                 return new PluginManifest { SystemName = folderName, FriendlyName = folderName, Version = version };
             }
 
@@ -231,7 +231,7 @@ internal sealed class PluginDiscovery
             problems.Add($"version '{manifest.Version}' is not a valid SemVer version.");
         }
 
-        var assembly = manifest.AssemblyFileName;
+        string assembly = manifest.AssemblyFileName;
         if (assembly.Contains("..", StringComparison.Ordinal) || Path.IsPathRooted(assembly) || assembly.Contains('/') || assembly.Contains('\\'))
         {
             problems.Add("assembly must be a plain file name in the plugin folder.");
@@ -270,7 +270,7 @@ internal sealed class PluginDiscovery
 
     private NuGetVersion? ResolveHostVersion()
     {
-        var text = options.HostVersion;
+        string? text = options.HostVersion;
         if (string.IsNullOrWhiteSpace(text))
         {
             var entry = Assembly.GetEntryAssembly();

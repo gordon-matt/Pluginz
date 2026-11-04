@@ -11,10 +11,10 @@ public class ArchiveInstallTests
         var stream = new MemoryStream();
         using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
         {
-            foreach (var file in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
+            foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
             {
-                var relative = Path.GetRelativePath(directory, file).Replace('\\', '/');
-                var bytes = File.ReadAllBytes(file);
+                string relative = Path.GetRelativePath(directory, file).Replace('\\', '/');
+                byte[] bytes = File.ReadAllBytes(file);
                 bytes = edit?.Invoke(relative, bytes) ?? bytes;
 
                 var entry = zip.CreateEntry(rootFolder is null ? relative : $"{rootFolder}/{relative}");
@@ -59,7 +59,7 @@ public class ArchiveInstallTests
     [Fact]
     public async Task A_zip_entry_that_escapes_the_staging_folder_is_rejected()
     {
-        var root = TestHost.NewRoot();
+        string root = TestHost.NewRoot();
         using var host = TestHost.Create(root);
         var installer = host.Provider.GetRequiredService<IPluginArchiveInstaller>();
 
@@ -119,7 +119,7 @@ public class ArchiveInstallTests
     [Fact]
     public async Task Uploading_a_newer_version_of_a_loaded_plugin_waits_for_a_restart()
     {
-        var root = TestHost.NewRoot();
+        string root = TestHost.NewRoot();
         TestHost.DeploySample(root, Hello);
 
         using (var first = TestHost.Create(root))
@@ -155,7 +155,7 @@ public class ArchiveInstallTests
     [Fact]
     public async Task Without_shadow_copy_an_update_is_staged_and_applied_at_the_next_start()
     {
-        var root = TestHost.NewRoot();
+        string root = TestHost.NewRoot();
         TestHost.DeploySample(root, Hello);
 
         using (var first = TestHost.Create(root, options => options.ShadowCopy = false))

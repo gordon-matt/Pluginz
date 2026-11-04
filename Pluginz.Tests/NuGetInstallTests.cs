@@ -24,7 +24,7 @@ public class NuGetInstallTests
         feed.AddHello();
         feed.AddNewtonsoft();
 
-        var root = TestHost.NewRoot();
+        string root = TestHost.NewRoot();
         using (var host = CreateHost(feed, root))
         {
             var packages = host.Provider.GetRequiredService<IPluginPackageService>();
@@ -36,7 +36,7 @@ public class NuGetInstallTests
             Assert.Equal(Hello, added.Value.PackageId);
 
             // Newtonsoft.Json is private to this plugin, so it is copied. Pluginz.Core comes from the host.
-            var folder = Path.Combine(root, "Plugins", Hello);
+            string folder = Path.Combine(root, "Plugins", Hello);
             Assert.True(File.Exists(Path.Combine(folder, "Newtonsoft.Json.dll")));
             Assert.False(File.Exists(Path.Combine(folder, "Pluginz.Core.dll")));
             Assert.True(File.Exists(Path.Combine(folder, "plugin.json")));
@@ -48,7 +48,7 @@ public class NuGetInstallTests
         Assert.Equal(PluginStatus.Active, restarted.Registry.Find(Hello)!.Status);
 
         var greeter = restarted.Provider.GetRequiredService<IGreeter>();
-        Assert.Contains("Newtonsoft.Json 12.0.0.0", greeter.Describe());
+        Assert.Contains("Newtonsoft.Json 13.0.0.0", greeter.Describe());
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public class NuGetInstallTests
     [Fact]
     public async Task A_relative_feed_folder_is_resolved_against_the_content_root()
     {
-        var root = TestHost.NewRoot();
+        string root = TestHost.NewRoot();
         var feed = new TestFeed();
         feed.AddNewtonsoft();
         feed.AddHello();
@@ -142,7 +142,7 @@ public class NuGetInstallTests
         feed.AddNewtonsoft();
         feed.AddHello();
 
-        var root = TestHost.NewRoot();
+        string root = TestHost.NewRoot();
         TestHost.DeploySample(root, Hello);
 
         using var host = TestHost.Create(
@@ -207,7 +207,7 @@ public class NuGetInstallTests
         var feed = new TestFeed();
         feed.AddHello();
 
-        var root = TestHost.NewRoot();
+        string root = TestHost.NewRoot();
         using var host = CreateHost(feed, root);
         var packages = host.Provider.GetRequiredService<IPluginPackageService>();
 
@@ -239,7 +239,7 @@ public class NuGetInstallTests
     {
         var feed = new TestFeed();
         feed.AddNewtonsoft();
-        var package = feed.AddHello();
+        string package = feed.AddHello();
 
         using var host = CreateHost(feed);
         await using var stream = File.OpenRead(package);
@@ -275,7 +275,7 @@ public class NuGetInstallTests
                 ["lib/net10.0/../../../../escaped.txt"] = [1],
             });
 
-        var root = TestHost.NewRoot();
+        string root = TestHost.NewRoot();
         using var host = CreateHost(feed, root);
         var result = await host.Provider.GetRequiredService<IPluginPackageService>().InstallAsync("Evil.Plugin");
 

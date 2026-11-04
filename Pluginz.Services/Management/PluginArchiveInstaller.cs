@@ -18,7 +18,7 @@ internal sealed class PluginArchiveInstaller(
             return Result<PluginInfo>.Forbidden("Uploading plugins is turned off.");
         }
 
-        var staging = Path.Combine(runtime.Paths.StagingRoot, Guid.NewGuid().ToString("N"));
+        string staging = Path.Combine(runtime.Paths.StagingRoot, Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(staging);
 
         try
@@ -29,14 +29,11 @@ internal sealed class PluginArchiveInstaller(
                 return extracted.To<PluginInfo>();
             }
 
-            var root = FindRoot(staging);
-            if (root is null)
-            {
-                return Result<PluginInfo>.Invalid(new ValidationError(
-                    "Archive", $"The zip file has no {PluginNames.ManifestFileName}, and no folder with a matching assembly."));
-            }
-
-            return await folderInstaller.InstallAsync(
+            string? root = FindRoot(staging);
+            return root is null
+                ? Result<PluginInfo>.Invalid(new ValidationError(
+                    "Archive", $"The zip file has no {PluginNames.ManifestFileName}, and no folder with a matching assembly."))
+                : await folderInstaller.InstallAsync(
                 root,
                 new PluginOriginRecord { Origin = PluginOrigin.Archive, Source = fileName },
                 cancellationToken);
@@ -61,15 +58,15 @@ internal sealed class PluginArchiveInstaller(
         }
 
         // Plugins are code, so the unpacked size is capped well above the upload size but far below a zip bomb.
-        var maxBytes = (long)runtime.Options.MaxUploadMegabytes * 1024 * 1024 * 4;
-        var written = 0L;
-        var stagingRoot = Path.GetFullPath(staging) + Path.DirectorySeparatorChar;
+        long maxBytes = (long)runtime.Options.MaxUploadMegabytes * 1024 * 1024 * 4;
+        long written = 0L;
+        string stagingRoot = Path.GetFullPath(staging) + Path.DirectorySeparatorChar;
 
         foreach (var entry in zip.Entries)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var destination = Path.GetFullPath(Path.Combine(staging, entry.FullName));
+            string destination = Path.GetFullPath(Path.Combine(staging, entry.FullName));
             if (!destination.StartsWith(stagingRoot, StringComparison.OrdinalIgnoreCase))
             {
                 logger.LogWarning("Rejected zip entry {Entry}: it points outside the staging folder", entry.FullName);
@@ -87,7 +84,7 @@ internal sealed class PluginArchiveInstaller(
             await using var source = entry.Open();
             await using var target = File.Create(destination);
 
-            var buffer = new byte[81920];
+            byte[] buffer = new byte[81920];
             int read;
             while ((read = await source.ReadAsync(buffer, cancellationToken)) > 0)
             {
@@ -112,11 +109,11 @@ internal sealed class PluginArchiveInstaller(
             return staging;
         }
 
-        var children = Directory.GetDirectories(staging);
+        string[] children = Directory.GetDirectories(staging);
         if (Directory.GetFiles(staging).Length == 0 && children.Length == 1)
         {
-            var child = children[0];
-            var name = Path.GetFileName(child);
+            string child = children[0];
+            string name = Path.GetFileName(child);
             if (File.Exists(Path.Combine(child, PluginNames.ManifestFileName)) || File.Exists(Path.Combine(child, $"{name}.dll")))
             {
                 return child;

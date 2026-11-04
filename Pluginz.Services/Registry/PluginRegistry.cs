@@ -11,7 +11,6 @@ internal sealed class PluginRegistry : IPluginRegistry
     private readonly IPluginStateStore store;
     private List<PluginEntry> entries;
     private List<PluginEntry> activationOrder = [];
-    private bool restartLatch;
 
     public PluginRegistry(PluginDiscovery discovery, IPluginStateStore store, List<PluginEntry> entries)
     {
@@ -28,9 +27,11 @@ internal sealed class PluginRegistry : IPluginRegistry
         {
             lock (gate)
             {
-                return restartLatch || entries.Any(entry => entry.RestartRequired);
+                return field || entries.Any(entry => entry.RestartRequired);
             }
         }
+
+        private set;
     }
 
     public IReadOnlyList<Assembly> ActiveAssemblies
@@ -131,7 +132,7 @@ internal sealed class PluginRegistry : IPluginRegistry
 
     public IReadOnlyList<Type> GetTypes(Type contract)
     {
-        IReadOnlyList<Assembly> assemblies = ActiveAssemblies;
+        var assemblies = ActiveAssemblies;
         var types = new List<Type>();
 
         foreach (var assembly in assemblies)
@@ -170,7 +171,7 @@ internal sealed class PluginRegistry : IPluginRegistry
                     continue;
                 }
 
-                var differs = !string.Equals(existing.Manifest.Version, found.Manifest.Version, StringComparison.OrdinalIgnoreCase)
+                bool differs = !string.Equals(existing.Manifest.Version, found.Manifest.Version, StringComparison.OrdinalIgnoreCase)
                     || !existing.Problems.SequenceEqual(found.Problems);
 
                 existing.Manifest = found.Manifest;
@@ -196,7 +197,7 @@ internal sealed class PluginRegistry : IPluginRegistry
             }
         }
 
-        foreach (var name in changed)
+        foreach (string name in changed)
         {
             Raise(name, PluginChangeKind.Discovered);
         }
@@ -223,7 +224,7 @@ internal sealed class PluginRegistry : IPluginRegistry
             // The assemblies stay loaded until the host restarts, so the restart notice must outlive the entry.
             if (entry.IsLoaded)
             {
-                restartLatch = true;
+                RestartRequired = true;
             }
         }
     }

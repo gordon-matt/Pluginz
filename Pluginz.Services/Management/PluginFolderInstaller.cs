@@ -25,7 +25,7 @@ internal sealed class PluginFolderInstaller(PluginRuntime runtime, ILogger<Plugi
         try
         {
             var paths = runtime.Paths;
-            var target = paths.PluginDirectory(manifest.SystemName);
+            string target = paths.PluginDirectory(manifest.SystemName);
             var existing = runtime.RegistryInternal.FindEntry(manifest.SystemName);
 
             origin.Write(sourceDirectory);
@@ -35,14 +35,14 @@ internal sealed class PluginFolderInstaller(PluginRuntime runtime, ILogger<Plugi
                 if (existing is { IsLoaded: true } && !runtime.Options.ShadowCopy)
                 {
                     // Its files are in use. Apply the update at the next start, before anything is loaded.
-                    var pending = Path.Combine(paths.PendingRoot, manifest.SystemName);
+                    string pending = Path.Combine(paths.PendingRoot, manifest.SystemName);
                     Directory.CreateDirectory(paths.PendingRoot);
                     DeleteIfExists(pending);
                     Move(sourceDirectory, pending);
                 }
                 else if (Directory.Exists(target))
                 {
-                    var trash = Path.Combine(paths.TrashRoot, Guid.NewGuid().ToString("N"));
+                    string trash = Path.Combine(paths.TrashRoot, Guid.NewGuid().ToString("N"));
                     Directory.CreateDirectory(paths.TrashRoot);
                     Directory.Move(target, trash);
 

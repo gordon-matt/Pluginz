@@ -1,4 +1,4 @@
-# Pluginz
+<img src="https://github.com/gordon-matt/Pluginz/blob/master/_Misc/Logo.png" alt="Logo" width="350" />
 
 A plugin framework for ASP.NET Core and Blazor. A plugin is a folder, a `.zip`, or a NuGet package. An administrator installs, enables, disables and removes plugins from a NetForge admin page, and a plugin can add services, MVC controllers, minimal API endpoints, Razor components, menu entries and static files to the host.
 

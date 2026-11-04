@@ -59,7 +59,7 @@ public sealed class PluginOriginRecord
 
     public static PluginOriginRecord? TryRead(string pluginDirectory)
     {
-        var path = Path.Combine(pluginDirectory, PluginNames.MetadataFolderName, "origin.json");
+        string path = Path.Combine(pluginDirectory, PluginNames.MetadataFolderName, "origin.json");
         if (!File.Exists(path))
         {
             return null;
@@ -77,7 +77,7 @@ public sealed class PluginOriginRecord
 
     public void Write(string pluginDirectory)
     {
-        var folder = Path.Combine(pluginDirectory, PluginNames.MetadataFolderName);
+        string folder = Path.Combine(pluginDirectory, PluginNames.MetadataFolderName);
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "origin.json"), JsonSerializer.Serialize(this, PluginzJson.Options));
     }

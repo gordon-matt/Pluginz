@@ -14,8 +14,8 @@ internal static class ShadowCopier
     /// <summary>Returns the shadow folder for the plugin's current files, creating it when it is missing.</summary>
     public static string Copy(string sourceDirectory, string shadowRoot, string systemName, ILogger? logger = null)
     {
-        var parent = Path.Combine(shadowRoot, systemName);
-        var target = Path.Combine(parent, Fingerprint(sourceDirectory));
+        string parent = Path.Combine(shadowRoot, systemName);
+        string target = Path.Combine(parent, Fingerprint(sourceDirectory));
 
         if (File.Exists(Path.Combine(target, CompleteMarker)))
         {
@@ -23,7 +23,7 @@ internal static class ShadowCopier
         }
 
         Directory.CreateDirectory(parent);
-        var temp = $"{target}.tmp-{Guid.NewGuid():N}";
+        string temp = $"{target}.tmp-{Guid.NewGuid():N}";
 
         try
         {
@@ -50,9 +50,9 @@ internal static class ShadowCopier
     private static string Fingerprint(string directory)
     {
         var builder = new StringBuilder();
-        foreach (var file in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories).OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
+        foreach (string? file in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories).OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
         {
-            var relative = Path.GetRelativePath(directory, file);
+            string relative = Path.GetRelativePath(directory, file);
             if (relative.StartsWith(PluginNames.MetadataFolderName, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
@@ -62,7 +62,7 @@ internal static class ShadowCopier
             builder.Append(relative).Append('|').Append(info.Length).Append('|').Append(info.LastWriteTimeUtc.Ticks).Append('\n');
         }
 
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(builder.ToString()));
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(builder.ToString()));
         return Convert.ToHexString(hash, 0, 8).ToLowerInvariant();
     }
 
@@ -70,12 +70,12 @@ internal static class ShadowCopier
     {
         Directory.CreateDirectory(destination);
 
-        foreach (var file in Directory.EnumerateFiles(source))
+        foreach (string file in Directory.EnumerateFiles(source))
         {
             File.Copy(file, Path.Combine(destination, Path.GetFileName(file)), overwrite: true);
         }
 
-        foreach (var directory in Directory.EnumerateDirectories(source))
+        foreach (string directory in Directory.EnumerateDirectories(source))
         {
             CopyDirectory(directory, Path.Combine(destination, Path.GetFileName(directory)));
         }
@@ -83,7 +83,7 @@ internal static class ShadowCopier
 
     private static void RemoveStale(string parent, string keep, ILogger? logger)
     {
-        foreach (var directory in Directory.EnumerateDirectories(parent))
+        foreach (string directory in Directory.EnumerateDirectories(parent))
         {
             if (string.Equals(directory, keep, StringComparison.OrdinalIgnoreCase))
             {

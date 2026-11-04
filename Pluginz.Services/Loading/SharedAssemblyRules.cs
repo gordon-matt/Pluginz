@@ -12,15 +12,14 @@ public sealed class SharedAssemblyRules
     ];
 
     private readonly PluginIsolationOptions options;
-    private readonly HostAssemblyCatalog catalog;
 
     public SharedAssemblyRules(PluginIsolationOptions options, HostAssemblyCatalog? catalog = null)
     {
         this.options = options;
-        this.catalog = catalog ?? HostAssemblyCatalog.Current;
+        Catalog = catalog ?? HostAssemblyCatalog.Current;
     }
 
-    public HostAssemblyCatalog Catalog => catalog;
+    public HostAssemblyCatalog Catalog { get; }
 
     /// <summary>
     /// True when the plugin must use the host's copy of <paramref name="assemblyName"/>. The loader still falls back
@@ -34,23 +33,8 @@ public sealed class SharedAssemblyRules
         }
 
         // Never separable. A second copy of these breaks the plugin contract or the runtime.
-        if (pluginzAssemblies.Contains(assemblyName, StringComparer.OrdinalIgnoreCase) || catalog.IsFramework(assemblyName))
-        {
-            return true;
-        }
-
-        if (privateAssemblies?.Contains(assemblyName, StringComparer.OrdinalIgnoreCase) == true)
-        {
-            return false;
-        }
-
-        if (options.SharedAssemblies.Contains(assemblyName, StringComparer.OrdinalIgnoreCase)
-            || options.SharedPrefixes.Any(prefix => assemblyName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
-        {
-            return true;
-        }
-
-        return options.Mode == PluginIsolationMode.PreferHost && catalog.Provides(assemblyName);
+        return pluginzAssemblies.Contains(assemblyName, StringComparer.OrdinalIgnoreCase) || Catalog.IsFramework(assemblyName) || ((privateAssemblies?.Contains(assemblyName, StringComparer.OrdinalIgnoreCase)) != true && (options.SharedAssemblies.Contains(assemblyName, StringComparer.OrdinalIgnoreCase)
+            || options.SharedPrefixes.Any(prefix => assemblyName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) || (options.Mode == PluginIsolationMode.PreferHost && Catalog.Provides(assemblyName))));
     }
 
     /// <summary>
@@ -58,5 +42,5 @@ public sealed class SharedAssemblyRules
     /// load the host's copy anyway.
     /// </summary>
     public bool IsProvidedByHost(string assemblyName, IReadOnlyCollection<string>? privateAssemblies = null) =>
-        IsShared(assemblyName, privateAssemblies) && catalog.Provides(assemblyName);
+        IsShared(assemblyName, privateAssemblies) && Catalog.Provides(assemblyName);
 }

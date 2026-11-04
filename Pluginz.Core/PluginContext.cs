@@ -47,7 +47,7 @@ public class PluginContext
     {
         get
         {
-            var path = Path.Combine(DataRoot, "data", SystemName);
+            string path = Path.Combine(DataRoot, "data", SystemName);
             Directory.CreateDirectory(path);
             return path;
         }

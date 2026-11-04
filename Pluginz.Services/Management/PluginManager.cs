@@ -24,7 +24,7 @@ internal sealed class PluginManager(PluginRuntime runtime, IServiceProvider serv
                 return Result<PluginInfo>.Conflict($"'{entry.FriendlyName}' is already installed.");
             }
 
-            var missing = FindUnmetDependencies(entry);
+            string? missing = FindUnmetDependencies(entry);
             if (missing is not null)
             {
                 return Invalid(systemName, missing);
@@ -107,7 +107,7 @@ internal sealed class PluginManager(PluginRuntime runtime, IServiceProvider serv
                 return Task.FromResult(Result<PluginInfo>.Conflict($"'{entry.FriendlyName}' is already enabled."));
             }
 
-            var missing = FindUnmetDependencies(entry);
+            string? missing = FindUnmetDependencies(entry);
             if (missing is not null)
             {
                 return Task.FromResult(Invalid(systemName, missing));
@@ -143,7 +143,7 @@ internal sealed class PluginManager(PluginRuntime runtime, IServiceProvider serv
 
         return RunAsync(form.SystemName, entry =>
         {
-            var name = form.FriendlyName?.Trim();
+            string? name = form.FriendlyName?.Trim();
             if (name is { Length: > MaxNameLength })
             {
                 return Task.FromResult(Result<PluginInfo>.Invalid(new ValidationError(nameof(form.FriendlyName), "That name is too long.")));
@@ -303,7 +303,7 @@ internal sealed class PluginManager(PluginRuntime runtime, IServiceProvider serv
 
     private static void DeleteDirectory(string directory)
     {
-        for (var attempt = 1; ; attempt++)
+        for (int attempt = 1; ; attempt++)
         {
             try
             {
