@@ -1,17 +1,27 @@
 <Project>
 
 	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
-		<Version>1.0.0</Version>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<Version>1.0.1</Version>
 		<Authors>Matt Gordon</Authors>
 		<Company>Matt Gordon</Company>
 		<Product>Pluginz</Product>
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageTags>plugins;plugin-framework;assemblyloadcontext;nuget;blazor;aspnetcore</PackageTags>
+		<PackageIcon>Icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageProjectUrl>https://github.com/gordon-matt/Pluginz</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/gordon-matt/Pluginz</RepositoryUrl>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
+
+	<!-- Packed into every package. Projects that are not packed (demo, samples, tests) never use these. -->
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)_Misc\Icon.png" Pack="true" PackagePath="\" Visible="false" />
+		<None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false" />
+	</ItemGroup>
 
 </Project>

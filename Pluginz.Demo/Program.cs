@@ -20,6 +20,8 @@ builder.Services.AddControllers().AddPluginzParts();
 builder.Services.AddPluginzWeb();
 builder.Services.AddPluginzNuGet();
 builder.Services.AddPluginzComponents();
+
+builder.Services.ConfigureNetForgeToastSounds(sounds => sounds.EnableSounds = true);
 builder.Services.AddSingleton<IAuthProviderService, DemoAuth>();
 
 builder.Services.Configure<ForgeShellOptions>(shell =>

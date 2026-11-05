@@ -4,6 +4,7 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<RootNamespace>Pluginz</RootNamespace>
 		<Description>Contracts for Pluginz plugins. Reference this from a plugin project. It has no loader and no UI.</Description>
+		<PackageTags>plugins;plugin-framework;plugin-contracts;abstractions;aspnetcore</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
