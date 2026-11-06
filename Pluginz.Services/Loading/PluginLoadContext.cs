@@ -14,6 +14,14 @@ public sealed class PluginLoadContext : AssemblyLoadContext
     private readonly IReadOnlyCollection<string> privateAssemblies;
     private readonly string directory;
 
+    /// <summary>
+    /// Initializes a new instance of the PluginLoadContext class.
+    /// </summary>
+    /// <param name="systemName">The system name.</param>
+    /// <param name="mainAssemblyPath">The main assembly path.</param>
+    /// <param name="rules">The rules.</param>
+    /// <param name="privateAssemblies">The private assemblies.</param>
+    /// <param name="isCollectible">The is collectible.</param>
     public PluginLoadContext(
         string systemName,
         string mainAssemblyPath,
@@ -30,13 +38,20 @@ public sealed class PluginLoadContext : AssemblyLoadContext
         this.privateAssemblies = privateAssemblies;
     }
 
+    /// <summary>
+    /// Gets the system name.
+    /// </summary>
     public string SystemName { get; }
 
+    /// <summary>
+    /// Gets the main assembly path.
+    /// </summary>
     public string MainAssemblyPath { get; }
 
     /// <summary>Loads the plugin's main assembly into this context.</summary>
     public Assembly LoadMainAssembly() => LoadFromAssemblyPath(MainAssemblyPath);
 
+    /// <inheritdoc/>
     protected override Assembly? Load(AssemblyName assemblyName)
     {
         string? name = assemblyName.Name;
@@ -61,6 +76,7 @@ public sealed class PluginLoadContext : AssemblyLoadContext
         return path is null ? null : LoadFromAssemblyPath(path);
     }
 
+    /// <inheritdoc/>
     protected override nint LoadUnmanagedDll(string unmanagedDllName)
     {
         string? path = resolver.ResolveUnmanagedDllToPath(unmanagedDllName) ?? ProbeNative(unmanagedDllName);

@@ -19,8 +19,14 @@ public sealed class PluginPaths
     /// <summary>The root for everything Pluginz writes besides the plugins themselves.</summary>
     public string DataRoot { get; }
 
+    /// <summary>
+    /// Gets the state file.
+    /// </summary>
     public string StateFile => Path.Combine(DataRoot, "plugins.json");
 
+    /// <summary>
+    /// Gets the shadow root.
+    /// </summary>
     public string ShadowRoot => Path.Combine(DataRoot, "shadow");
 
     /// <summary>Updates that wait for the next start because the plugin is loaded from its own folder.</summary>
@@ -32,13 +38,27 @@ public sealed class PluginPaths
     /// <summary>Replaced folders wait here until they can be deleted.</summary>
     public string TrashRoot => Path.Combine(DataRoot, "trash");
 
+    /// <summary>
+    /// Creates a value from the value.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <param name="contentRootPath">The content root path.</param>
+    /// <returns>The plugin paths.</returns>
     public static PluginPaths From(PluginzOptions options, string contentRootPath) => new(
         contentRootPath,
         Path.GetFullPath(options.PluginsPath, contentRootPath),
         Path.GetFullPath(options.DataPath, contentRootPath));
 
+    /// <summary>
+    /// Gets the plugin directory.
+    /// </summary>
+    /// <param name="systemName">The system name.</param>
+    /// <returns>The plugin directory.</returns>
     public string PluginDirectory(string systemName) => Path.Combine(PluginsRoot, systemName);
 
+    /// <summary>
+    /// Ensures the created.
+    /// </summary>
     public void EnsureCreated()
     {
         Directory.CreateDirectory(PluginsRoot);
@@ -49,14 +69,31 @@ public sealed class PluginPaths
 /// <summary>Written to <c>.pluginz/origin.json</c> when Pluginz installs a plugin, so it can tell where it came from.</summary>
 public sealed class PluginOriginRecord
 {
+    /// <summary>
+    /// Gets or sets the origin.
+    /// </summary>
     public PluginOrigin Origin { get; set; }
 
+    /// <summary>
+    /// Gets or sets the package identifier.
+    /// </summary>
     public string? PackageId { get; set; }
 
+    /// <summary>
+    /// Gets or sets the source.
+    /// </summary>
     public string? Source { get; set; }
 
+    /// <summary>
+    /// Gets or sets the installed utc.
+    /// </summary>
     public DateTime InstalledUtc { get; set; } = DateTime.UtcNow;
 
+    /// <summary>
+    /// Attempts to read.
+    /// </summary>
+    /// <param name="pluginDirectory">The plugin directory.</param>
+    /// <returns>The read.</returns>
     public static PluginOriginRecord? TryRead(string pluginDirectory)
     {
         string path = Path.Combine(pluginDirectory, PluginNames.MetadataFolderName, "origin.json");
@@ -75,6 +112,10 @@ public sealed class PluginOriginRecord
         }
     }
 
+    /// <summary>
+    /// Writes the value.
+    /// </summary>
+    /// <param name="pluginDirectory">The plugin directory.</param>
     public void Write(string pluginDirectory)
     {
         string folder = Path.Combine(pluginDirectory, PluginNames.MetadataFolderName);

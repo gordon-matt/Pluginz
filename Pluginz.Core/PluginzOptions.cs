@@ -6,6 +6,9 @@ namespace Pluginz;
 /// </summary>
 public sealed class PluginzOptions
 {
+    /// <summary>
+    /// The section name constant.
+    /// </summary>
     public const string SectionName = "Pluginz";
 
     /// <summary>The folder that holds one sub-folder per plugin. A relative path is relative to the content root.</summary>

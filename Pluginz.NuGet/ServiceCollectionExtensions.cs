@@ -4,6 +4,9 @@ using Pluginz.Packages;
 
 namespace Pluginz;
 
+/// <summary>
+/// Provides extension methods for nu get service collections.
+/// </summary>
 public static class NuGetServiceCollectionExtensions
 {
     extension(IServiceCollection services)

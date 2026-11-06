@@ -47,14 +47,26 @@ public sealed class PluginRuntime
         Activate();
     }
 
+    /// <summary>
+    /// Gets the options.
+    /// </summary>
     public PluginzOptions Options { get; }
 
+    /// <summary>
+    /// Gets the paths.
+    /// </summary>
     public PluginPaths Paths { get; }
 
     internal IConfiguration Configuration { get; }
 
+    /// <summary>
+    /// Gets the state store.
+    /// </summary>
     public IPluginStateStore StateStore { get; }
 
+    /// <summary>
+    /// Gets the registry.
+    /// </summary>
     public IPluginRegistry Registry => RegistryInternal;
 
     internal PluginRegistry RegistryInternal { get; }

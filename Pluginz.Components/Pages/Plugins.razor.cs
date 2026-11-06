@@ -3,29 +3,56 @@ using Microsoft.Extensions.Hosting;
 
 namespace Pluginz.Components.Pages;
 
+/// <summary>
+/// Represents the plugins.
+/// </summary>
 public partial class Plugins : IDisposable
 {
+    /// <summary>
+    /// Gets or sets the registry.
+    /// </summary>
     [Inject]
     public IPluginRegistry Registry { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the manager.
+    /// </summary>
     [Inject]
     public IPluginManager Manager { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the archives.
+    /// </summary>
     [Inject]
     public IPluginArchiveInstaller Archives { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the options.
+    /// </summary>
     [Inject]
     public IOptions<PluginzOptions> Options { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the services.
+    /// </summary>
     [Inject]
     public IServiceProvider Services { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the lifetime.
+    /// </summary>
     [Inject]
     public IHostApplicationLifetime Lifetime { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the toasts.
+    /// </summary>
     [Inject]
     public ToastService Toasts { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the dialogs.
+    /// </summary>
     [Inject]
     public DialogService Dialogs { get; set; } = default!;
 
@@ -57,6 +84,7 @@ public partial class Plugins : IDisposable
 
     private IPluginPackageService? Packages => Services.GetService<IPluginPackageService>();
 
+    /// <inheritdoc/>
     protected override async Task OnInitializedAsync()
     {
         if (!await PluginzAccess.CanReadAsync(Options.Value, Services))
@@ -72,6 +100,9 @@ public partial class Plugins : IDisposable
         loading = false;
     }
 
+    /// <summary>
+    /// Releases the resources used by this instance.
+    /// </summary>
     public void Dispose() => Registry.Changed -= OnRegistryChanged;
 
     private void OnRegistryChanged(object? sender, PluginChangedEventArgs args) =>

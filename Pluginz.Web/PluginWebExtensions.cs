@@ -7,6 +7,9 @@ using Pluginz.Web;
 
 namespace Pluginz;
 
+/// <summary>
+/// Provides extension methods for plugin webs.
+/// </summary>
 public static class PluginWebExtensions
 {
     extension(IServiceCollection services)

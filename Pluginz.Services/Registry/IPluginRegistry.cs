@@ -6,9 +6,21 @@ public enum PluginChangeKind
     /// <summary>A plugin folder appeared, or its files changed.</summary>
     Discovered,
 
+    /// <summary>
+    /// The installed value.
+    /// </summary>
     Installed,
+    /// <summary>
+    /// The uninstalled value.
+    /// </summary>
     Uninstalled,
+    /// <summary>
+    /// The enabled value.
+    /// </summary>
     Enabled,
+    /// <summary>
+    /// The disabled value.
+    /// </summary>
     Disabled,
 
     /// <summary>The administrator changed the friendly name, order, tenants or roles.</summary>
@@ -18,10 +30,19 @@ public enum PluginChangeKind
     Deleted,
 }
 
+/// <summary>
+/// Represents the plugin changed event args.
+/// </summary>
 public sealed class PluginChangedEventArgs(string systemName, PluginChangeKind kind) : EventArgs
 {
+    /// <summary>
+    /// Gets the system name.
+    /// </summary>
     public string SystemName { get; } = systemName;
 
+    /// <summary>
+    /// Gets the kind.
+    /// </summary>
     public PluginChangeKind Kind { get; } = kind;
 }
 
@@ -37,13 +58,28 @@ public interface IPluginRegistry
     /// <summary>All plugins ordered by display order, then friendly name.</summary>
     IReadOnlyList<PluginInfo> GetAll();
 
+    /// <summary>
+    /// Finds the value.
+    /// </summary>
+    /// <param name="systemName">The system name.</param>
+    /// <returns>The plugin info.</returns>
     PluginInfo? Find(string systemName);
 
     /// <summary>Finds the plugin that an assembly belongs to, including assemblies the plugin loads for itself.</summary>
     PluginInfo? FindByAssembly(Assembly assembly);
 
+    /// <summary>
+    /// Finds by the type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>The type.</returns>
     PluginInfo? FindByType(Type type) => FindByAssembly(type.Assembly);
 
+    /// <summary>
+    /// Determines whether this instance is active.
+    /// </summary>
+    /// <param name="systemName">The system name.</param>
+    /// <returns>true when the condition is met; otherwise, false.</returns>
     bool IsActive(string systemName);
 
     /// <summary>The main assemblies of the plugins that are loaded, in activation order.</summary>

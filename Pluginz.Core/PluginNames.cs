@@ -28,6 +28,9 @@ public static partial class PluginNames
 /// <summary>JSON settings for manifests and the state file.</summary>
 public static class PluginzJson
 {
+    /// <summary>
+    /// Gets the options.
+    /// </summary>
     public static JsonSerializerOptions Options { get; } = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true,
@@ -40,7 +43,13 @@ public static class PluginzJson
 /// <summary>The routes of the Pluginz admin pages.</summary>
 public static class PluginzRoutes
 {
+    /// <summary>
+    /// The plugins constant.
+    /// </summary>
     public const string Plugins = "/pluginz";
 
+    /// <summary>
+    /// The browse constant.
+    /// </summary>
     public const string Browse = "/pluginz/browse";
 }

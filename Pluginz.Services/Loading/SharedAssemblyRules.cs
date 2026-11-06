@@ -13,12 +13,20 @@ public sealed class SharedAssemblyRules
 
     private readonly PluginIsolationOptions options;
 
+    /// <summary>
+    /// Initializes a new instance of the SharedAssemblyRules class.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <param name="catalog">The catalog.</param>
     public SharedAssemblyRules(PluginIsolationOptions options, HostAssemblyCatalog? catalog = null)
     {
         this.options = options;
         Catalog = catalog ?? HostAssemblyCatalog.Current;
     }
 
+    /// <summary>
+    /// Gets the catalog.
+    /// </summary>
     public HostAssemblyCatalog Catalog { get; }
 
     /// <summary>

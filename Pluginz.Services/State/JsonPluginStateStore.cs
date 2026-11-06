@@ -5,13 +5,24 @@ public sealed class JsonPluginStateStore : IPluginStateStore
 {
     private readonly Lock gate = new();
 
+    /// <summary>
+    /// Initializes a new instance of the JsonPluginStateStore class.
+    /// </summary>
+    /// <param name="path">The path.</param>
     public JsonPluginStateStore(string path)
     {
         FilePath = path;
     }
 
+    /// <summary>
+    /// Gets the file path.
+    /// </summary>
     public string FilePath { get; }
 
+    /// <summary>
+    /// Loads the value.
+    /// </summary>
+    /// <returns>The plugin state document.</returns>
     public PluginStateDocument Load()
     {
         lock (gate)
@@ -20,6 +31,10 @@ public sealed class JsonPluginStateStore : IPluginStateStore
         }
     }
 
+    /// <summary>
+    /// Updates the value.
+    /// </summary>
+    /// <param name="change">The change.</param>
     public void Update(Action<PluginStateDocument> change)
     {
         lock (gate)

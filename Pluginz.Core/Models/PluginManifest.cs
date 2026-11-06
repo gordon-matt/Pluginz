@@ -9,6 +9,9 @@ public sealed class PluginManifest
     /// <summary>The unique key of the plugin. It is also the folder name. Letters, digits, dot, dash and underscore.</summary>
     public string SystemName { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the friendly name.
+    /// </summary>
     public string? FriendlyName { get; set; }
 
     /// <summary>A free-form category, for grouping in the UI and for filtering.</summary>
@@ -17,10 +20,19 @@ public sealed class PluginManifest
     /// <summary>A SemVer version, for example <c>1.2.0</c> or <c>2.0.0-beta.1</c>.</summary>
     public string Version { get; set; } = "1.0.0";
 
+    /// <summary>
+    /// Gets or sets the author.
+    /// </summary>
     public string? Author { get; set; }
 
+    /// <summary>
+    /// Gets or sets the description.
+    /// </summary>
     public string? Description { get; set; }
 
+    /// <summary>
+    /// Gets or sets the display order.
+    /// </summary>
     public int DisplayOrder { get; set; }
 
     /// <summary>The file name of the main assembly. Defaults to <c>{SystemName}.dll</c>.</summary>
@@ -47,12 +59,24 @@ public sealed class PluginManifest
     /// <summary>When not empty, the plugin is available only to users in one of these roles.</summary>
     public List<string> Roles { get; set; } = [];
 
+    /// <summary>
+    /// Gets or sets the tags.
+    /// </summary>
     public List<string> Tags { get; set; } = [];
 
+    /// <summary>
+    /// Gets or sets the icon URL.
+    /// </summary>
     public string? IconUrl { get; set; }
 
+    /// <summary>
+    /// Gets or sets the project URL.
+    /// </summary>
     public string? ProjectUrl { get; set; }
 
+    /// <summary>
+    /// Gets or sets the license.
+    /// </summary>
     public string? License { get; set; }
 
     /// <summary>The main assembly file name with the default applied.</summary>

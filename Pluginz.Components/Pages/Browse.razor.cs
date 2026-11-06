@@ -2,17 +2,32 @@ using NuGet.Versioning;
 
 namespace Pluginz.Components.Pages;
 
+/// <summary>
+/// Represents the browse.
+/// </summary>
 public partial class Browse
 {
+    /// <summary>
+    /// Gets or sets the manager.
+    /// </summary>
     [Inject]
     public IPluginManager Manager { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the options.
+    /// </summary>
     [Inject]
     public IOptions<PluginzOptions> Options { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the services.
+    /// </summary>
     [Inject]
     public IServiceProvider Services { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets the toasts.
+    /// </summary>
     [Inject]
     public ToastService Toasts { get; set; } = default!;
 
@@ -28,6 +43,7 @@ public partial class Browse
 
     private IPluginPackageService? Packages => Services.GetService<IPluginPackageService>();
 
+    /// <inheritdoc/>
     protected override async Task OnInitializedAsync()
     {
         if (Packages is null)

@@ -3,6 +3,9 @@ namespace Pluginz.Packages;
 /// <summary>Settings for installing plugins from NuGet. Bind them from the <c>Pluginz:NuGet</c> section.</summary>
 public sealed class PluginzNuGetOptions
 {
+    /// <summary>
+    /// The section name constant.
+    /// </summary>
     public const string SectionName = "Pluginz:NuGet";
 
     /// <summary>The feeds to search and install from. When empty, nuget.org is used.</summary>
@@ -33,12 +36,21 @@ public sealed class PluginzNuGetOptions
 /// <summary>A NuGet feed. Either a v3 service index URL or the path of a folder that holds .nupkg files.</summary>
 public sealed class PluginPackageSource
 {
+    /// <summary>
+    /// Gets or sets the name.
+    /// </summary>
     public string Name { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the URL.
+    /// </summary>
     public string Url { get; set; } = string.Empty;
 
     /// <summary>For feeds that need basic authentication. Keep the password in a secret store, not in a settings file.</summary>
     public string? Username { get; set; }
 
+    /// <summary>
+    /// Gets or sets the password.
+    /// </summary>
     public string? Password { get; set; }
 }
