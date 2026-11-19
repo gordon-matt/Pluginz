@@ -49,6 +49,7 @@ var app = builder.Build();
 
 app.UseStaticFiles();
 app.MapStaticAssets();
+app.MapNetForgeAssets();
 app.UsePluginz();
 app.UseAntiforgery();
 app.MapControllers();
