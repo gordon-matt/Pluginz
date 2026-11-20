@@ -6,15 +6,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Heroicsoft.NetForge.Components" Version="1.2.6" />
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.14" />
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.14" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.14" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
+		<PackageReference Include="Heroicsoft.NetForge.Components" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" />
+		<PackageReference Include="Microsoft.Extensions.Logging" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
 		<!-- The host ships 13.x. The Hello sample insists on its own 12.x. -->
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="xunit" Version="2.9.3" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="4.0.1">
+		<PackageReference Include="Newtonsoft.Json" />
+		<PackageReference Include="xunit" />
+		<PackageReference Include="xunit.runner.visualstudio">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
